@@ -17,7 +17,7 @@ const Step = ({ icon, title, description, number }: StepProps) => {
         <div className="relative h-20 w-20 bg-brand-blue rounded-full flex items-center justify-center text-white">
           {icon}
         </div>
-        <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-brand-teal flex items-center justify-center text-white font-bold text-sm">
+        <div className="absolute -top-2 -right-2 h-8 w-8 rounded-full bg-brand-yellow flex items-center justify-center text-white font-bold text-sm">
           {number}
         </div>
       </div>
@@ -50,11 +50,11 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section className="py-20 bg-brand-blue text-white">
+    <section className="py-20 bg-brand-grey/30 text-brand-black">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">How Sukooni Works</h2>
-          <p className="text-lg text-white/80">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-brand-dark-blue">How Sukooni Works</h2>
+          <p className="text-lg text-brand-black/80">
             Getting the support you need has never been easier
           </p>
         </div>

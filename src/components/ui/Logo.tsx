@@ -9,17 +9,18 @@ interface LogoProps {
 
 export const Logo: React.FC<LogoProps> = ({ className, size = "md" }) => {
   const sizeClasses = {
-    sm: "text-lg",
-    md: "text-xl",
-    lg: "text-2xl",
+    sm: "h-6",
+    md: "h-8",
+    lg: "h-10",
   };
 
   return (
-    <div className={cn("font-bold flex items-center", sizeClasses[size], className)}>
-      <span className="bg-brand-blue p-1.5 rounded-md text-white mr-2 flex items-center justify-center">
-        S
-      </span>
-      <span className="text-brand-blue font-semibold">Sukooni</span>
+    <div className={cn("flex items-center", className)}>
+      <img 
+        src="/lovable-uploads/e2d84133-723e-4eb0-9fe1-d46b149290a6.png" 
+        alt="Sukooni" 
+        className={cn(sizeClasses[size])}
+      />
     </div>
   );
 };
