@@ -32,7 +32,7 @@ export default function Navbar() {
             <NavLink to="/about">About</NavLink>
             <NavLink to="/therapists">Our Therapists</NavLink>
             <NavLink to="/services">Services</NavLink>
-            <NavLink to="/resources">Resources</NavLink>
+            <NavLink to="/organizations">Organizations</NavLink>
             <NavLink to="/contact">Contact</NavLink>
           </div>
           
@@ -68,7 +68,7 @@ export default function Navbar() {
             <NavLink to="/about">About</NavLink>
             <NavLink to="/therapists">Our Therapists</NavLink>
             <NavLink to="/services">Services</NavLink>
-            <NavLink to="/resources">Resources</NavLink>
+            <NavLink to="/organizations">Organizations</NavLink>
             <NavLink to="/contact">Contact</NavLink>
           </div>
           <div className="pt-4 pb-3 border-t border-brand-gray-200">

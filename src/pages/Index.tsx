@@ -2,20 +2,22 @@
 import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import Hero from "@/components/home/Hero";
-import Features from "@/components/home/Features";
-import Testimonials from "@/components/home/Testimonials";
-import CallToAction from "@/components/home/CallToAction";
+import HeroSection from "@/components/home/HeroSection";
+import ValueSection from "@/components/home/ValueSection";
+import HowItWorks from "@/components/home/HowItWorks";
+import TestimonialsSection from "@/components/home/TestimonialsSection";
+import CTASection from "@/components/home/CTASection";
 
 const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-grow">
-        <Hero />
-        <Features />
-        <Testimonials />
-        <CallToAction />
+        <HeroSection />
+        <ValueSection />
+        <HowItWorks />
+        <TestimonialsSection />
+        <CTASection />
       </main>
       <Footer />
     </div>
