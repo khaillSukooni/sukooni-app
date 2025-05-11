@@ -64,9 +64,12 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				brand: {
-					blue: '#1EAEDB', // Sukooni brand blue
-					teal: '#33C3F0', // Sukooni light blue
-					purple: '#0FA0CE', // Sukooni dark blue
+					blue: '#4281EA', // Sukooni Blue
+					'dark-blue': '#34526C', // Sukooni Dark Blue
+					yellow: '#EDA92A', // Sukooni Yellow
+					'dark-yellow': '#8B5B24', // Sukooni Dark Yellow
+					black: '#3A3A3A', // Sukooni Black
+					grey: '#D6DCE2', // Sukooni Grey
 					gray: {
 						100: '#f3f4f6',
 						200: '#e5e7eb',
