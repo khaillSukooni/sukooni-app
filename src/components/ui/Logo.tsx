@@ -16,10 +16,10 @@ export const Logo: React.FC<LogoProps> = ({ className, size = "md" }) => {
 
   return (
     <div className={cn("font-bold flex items-center", sizeClasses[size], className)}>
-      <span className="bg-gradient-to-r from-brand-blue via-brand-teal to-brand-purple p-1.5 rounded-md text-white mr-2">
-        TT
+      <span className="bg-brand-blue p-1.5 rounded-md text-white mr-2 flex items-center justify-center">
+        S
       </span>
-      <span className="gradient-text">TherapyTalk</span>
+      <span className="text-brand-blue font-semibold">Sukooni</span>
     </div>
   );
 };
