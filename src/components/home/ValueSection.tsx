@@ -36,9 +36,9 @@ const ValueSection = () => {
             <div className="relative">
               <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-teal/10 blur-3xl"></div>
               <img
-                src="/placeholder.svg"
-                alt="Therapist"
-                className="rounded-2xl shadow-lg w-full max-w-md mx-auto"
+                src="https://images.unsplash.com/photo-1516726817505-f5ed825624d8?q=80&w=600&auto=format&fit=crop"
+                alt="Therapist with client"
+                className="rounded-2xl shadow-lg w-full max-w-md mx-auto object-cover aspect-[4/3]"
               />
             </div>
           </div>

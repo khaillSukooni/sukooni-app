@@ -3,6 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const HeroSection = () => {
   return (
@@ -34,12 +35,18 @@ const HeroSection = () => {
             
             <div className="flex items-center space-x-4 justify-center md:justify-start">
               <div className="flex -space-x-2">
-                {[1, 2, 3].map((i) => (
-                  <div 
-                    key={i} 
-                    className="w-10 h-10 rounded-full border-2 border-white bg-brand-gray-200"
-                  />
-                ))}
+                <Avatar className="border-2 border-white h-10 w-10">
+                  <AvatarImage src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=100&h=100&auto=format&fit=crop" alt="Client" />
+                  <AvatarFallback>JD</AvatarFallback>
+                </Avatar>
+                <Avatar className="border-2 border-white h-10 w-10">
+                  <AvatarImage src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&h=100&auto=format&fit=crop" alt="Client" />
+                  <AvatarFallback>AS</AvatarFallback>
+                </Avatar>
+                <Avatar className="border-2 border-white h-10 w-10">
+                  <AvatarImage src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=100&h=100&auto=format&fit=crop" alt="Client" />
+                  <AvatarFallback>RB</AvatarFallback>
+                </Avatar>
               </div>
               <p className="text-sm text-brand-gray-600">
                 <span className="font-semibold">1000+</span> satisfied clients
@@ -53,8 +60,8 @@ const HeroSection = () => {
               <div className="relative bg-white rounded-3xl shadow-xl p-2 max-w-md">
                 <div className="aspect-[4/5] bg-brand-gray-100 rounded-2xl flex items-center justify-center overflow-hidden">
                   <img 
-                    src="/placeholder.svg"
-                    alt="Therapy session"
+                    src="https://images.unsplash.com/photo-1573497620053-ea5300f94f21?q=80&w=600&auto=format&fit=crop"
+                    alt="Online therapy session"
                     className="w-full h-full object-cover"
                   />
                 </div>
