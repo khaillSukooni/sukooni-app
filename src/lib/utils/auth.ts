@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { UserProfile } from "../types/auth";
+import { UserProfile, UserRole } from "../types/auth";
 
 export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
   const { data, error } = await supabase
@@ -17,7 +17,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
   return data as UserProfile;
 };
 
-export const updateUserRole = async (userId: string, role: string): Promise<boolean> => {
+export const updateUserRole = async (userId: string, role: UserRole): Promise<boolean> => {
   const { error } = await supabase
     .from("profiles")
     .update({ role })
