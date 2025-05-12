@@ -1,0 +1,140 @@
+
+import React from "react";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { 
+  Collapsible, 
+  CollapsibleContent, 
+  CollapsibleTrigger 
+} from "@/components/ui/collapsible";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Languages, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { Therapist } from "@/lib/types/therapist";
+
+interface TherapistCardProps {
+  therapist: Therapist;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+}
+
+const TherapistCard: React.FC<TherapistCardProps> = ({ 
+  therapist, 
+  isExpanded, 
+  onToggleExpand 
+}) => {
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('');
+  };
+
+  return (
+    <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-md">
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div className="flex gap-4 items-center">
+            <Avatar className="h-16 w-16 border">
+              <AvatarImage src={therapist.profileImage} alt={therapist.name} />
+              <AvatarFallback>{getInitials(therapist.name)}</AvatarFallback>
+            </Avatar>
+            <div>
+              <CardTitle>{therapist.name}</CardTitle>
+              <CardDescription className="mt-1 flex items-center">
+                <Clock className="h-4 w-4 mr-1" />
+                {therapist.yearsExperience} years experience
+              </CardDescription>
+            </div>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm font-medium mb-1">Languages</p>
+            <div className="flex flex-wrap gap-1">
+              {therapist.languages.map((language, index) => (
+                <div key={index} className="flex items-center text-sm text-muted-foreground">
+                  <Languages className="h-3 w-3 mr-1" />
+                  <span>{language}</span>
+                  {index < therapist.languages.length - 1 && <span className="mx-1">•</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-sm font-medium mb-1">Specializations</p>
+            <div className="flex flex-wrap gap-1">
+              {therapist.specializations.map((specialization, index) => (
+                <Badge key={index} variant="outline" className="bg-primary/5">
+                  {specialization}
+                </Badge>
+              ))}
+            </div>
+          </div>
+
+          <p className="text-sm">{therapist.shortBio}</p>
+        </div>
+
+        <Collapsible open={isExpanded} className="mt-4">
+          <CollapsibleContent className="pt-4 border-t mt-4 space-y-4">
+            <div>
+              <h4 className="text-sm font-medium mb-2">About Me</h4>
+              <p className="text-sm">{therapist.longBio}</p>
+            </div>
+            
+            <div>
+              <h4 className="text-sm font-medium mb-2">Qualifications</h4>
+              <ul className="text-sm list-disc pl-5 space-y-1">
+                {therapist.qualifications.map((qualification, index) => (
+                  <li key={index}>{qualification}</li>
+                ))}
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-sm font-medium mb-2">Areas of Focus</h4>
+              <div className="flex flex-wrap gap-1">
+                {therapist.focusAreas.map((area, index) => (
+                  <Badge key={index} variant="secondary" className="bg-secondary/10">
+                    {area}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+            
+            <Button className="w-full">Book a Session</Button>
+          </CollapsibleContent>
+        </Collapsible>
+      </CardContent>
+      <CardFooter className="pt-0">
+        <Button 
+          variant="ghost" 
+          onClick={onToggleExpand} 
+          className="w-full text-primary"
+        >
+          {isExpanded ? (
+            <span className="flex items-center">
+              Show Less <ChevronUp className="ml-1 h-4 w-4" />
+            </span>
+          ) : (
+            <span className="flex items-center">
+              Learn More <ChevronDown className="ml-1 h-4 w-4" />
+            </span>
+          )}
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+};
+
+export default TherapistCard;

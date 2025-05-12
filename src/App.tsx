@@ -14,6 +14,7 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
+import Therapists from "./pages/Therapists";
 
 const queryClient = new QueryClient();
 
@@ -60,7 +61,7 @@ const AppRoutes = () => (
     <Route path="/resources" element={<NotFound />} />
     <Route path="/contact" element={<NotFound />} />
     <Route path="/faq" element={<NotFound />} />
-    <Route path="/therapists" element={<NotFound />} />
+    <Route path="/therapists" element={<Therapists />} />
     <Route path="/therapists/:id" element={<NotFound />} />
     <Route path="/organizations" element={<NotFound />} />
     
