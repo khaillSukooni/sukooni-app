@@ -12,3 +12,4 @@ export interface Therapist {
   qualifications: string[];
   focusAreas: string[];
 }
+

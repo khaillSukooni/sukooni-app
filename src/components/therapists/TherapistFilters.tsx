@@ -20,12 +20,14 @@ interface TherapistFiltersProps {
   filters: FiltersState;
   onApplyFilters: (filters: FiltersState) => void;
   onClearFilters: () => void;
+  isCompact?: boolean;
 }
 
 const TherapistFilters: React.FC<TherapistFiltersProps> = ({ 
   filters, 
   onApplyFilters, 
-  onClearFilters 
+  onClearFilters,
+  isCompact = false
 }) => {
   const [localFilters, setLocalFilters] = useState<FiltersState>(filters);
 
@@ -57,21 +59,27 @@ const TherapistFilters: React.FC<TherapistFiltersProps> = ({
   };
 
   return (
-    <div className="bg-card shadow-sm rounded-lg border p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Filters</h2>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={handleClearFilters}
-          className="h-8 text-xs"
-        >
-          Clear all
-        </Button>
-      </div>
+    <div className={`${isCompact ? "" : "bg-card shadow-sm rounded-lg border p-4"}`}>
+      {!isCompact && (
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Filters</h2>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleClearFilters}
+            className="h-8 text-xs"
+          >
+            Clear all
+          </Button>
+        </div>
+      )}
 
-      <Accordion type="multiple" defaultValue={["languages", "specializations", "gender"]}>
-        <AccordionItem value="languages">
+      <Accordion 
+        type="multiple" 
+        defaultValue={["languages", "specializations", "gender"]}
+        className={`${isCompact ? "mb-2" : ""}`}
+      >
+        <AccordionItem value="languages" className={isCompact ? "border-b-0" : ""}>
           <AccordionTrigger className="text-sm font-medium">Languages</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-2">
@@ -94,7 +102,7 @@ const TherapistFilters: React.FC<TherapistFiltersProps> = ({
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="specializations">
+        <AccordionItem value="specializations" className={isCompact ? "border-b-0" : ""}>
           <AccordionTrigger className="text-sm font-medium">Specializations</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-2">
@@ -117,7 +125,7 @@ const TherapistFilters: React.FC<TherapistFiltersProps> = ({
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="gender">
+        <AccordionItem value="gender" className={isCompact ? "border-b-0" : ""}>
           <AccordionTrigger className="text-sm font-medium">Gender</AccordionTrigger>
           <AccordionContent>
             <div className="space-y-2">
@@ -143,7 +151,7 @@ const TherapistFilters: React.FC<TherapistFiltersProps> = ({
 
       <Button 
         onClick={handleApplyFilters}
-        className="w-full mt-4"
+        className="w-full"
       >
         Apply Filters
       </Button>

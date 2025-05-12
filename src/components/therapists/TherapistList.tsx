@@ -19,7 +19,7 @@ const TherapistList: React.FC<TherapistListProps> = ({ therapists }) => {
       {therapists.length === 0 ? (
         <div className="text-center p-8 bg-muted/30 rounded-lg">
           <h3 className="text-xl font-medium mb-2">No therapists found</h3>
-          <p className="text-muted-foreground">Try adjusting your filters to see more results.</p>
+          <p className="text-muted-foreground">Try adjusting your filters or search criteria to see more results.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
