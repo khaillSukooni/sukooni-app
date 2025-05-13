@@ -1,10 +1,11 @@
 
 import React from "react";
 import { CheckCircle } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const ValueSection = () => {
   return (
-    <section className="py-20 bg-[#FEF9EE] relative overflow-hidden">
+    <section className="py-20 relative overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="flex flex-col-reverse md:flex-row items-center gap-12">
           <div className="w-full md:w-1/2 space-y-8">
@@ -35,11 +36,17 @@ const ValueSection = () => {
           <div className="w-full md:w-1/2">
             <div className="relative">
               <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-teal/10 blur-3xl"></div>
-              <img
-                src="/lovable-uploads/7f63572a-7bec-473c-a714-d59f3f462ab7.png"
-                alt="Smiling man in light shirt"
-                className="rounded-2xl shadow-lg w-full max-w-md mx-auto object-cover aspect-[4/3]"
-              />
+              <div className="p-2 rounded-2xl shadow-lg bg-white">
+                <div className="bg-[#FEF9EE] rounded-xl overflow-hidden">
+                  <AspectRatio ratio={4/3} className="w-full">
+                    <img
+                      src="/lovable-uploads/aead7d07-80b0-41a5-a42c-2b5414f6bcaf.png"
+                      alt="Smiling man in light shirt"
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </AspectRatio>
+                </div>
+              </div>
             </div>
           </div>
         </div>
