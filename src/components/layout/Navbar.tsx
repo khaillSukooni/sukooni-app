@@ -118,39 +118,74 @@ export default function Navbar() {
               <SheetTrigger asChild>
                 <Button 
                   variant="ghost" 
-                  className="p-2 text-brand-gray-600 hover:text-brand-blue focus:outline-none"
+                  className="p-1.5 text-brand-gray-600 hover:text-brand-blue hover:bg-transparent focus:bg-transparent focus:outline-none"
                   aria-label="Menu"
                 >
-                  <Menu className="h-6 w-6" />
+                  <Menu className="h-7 w-7" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-full px-0 sm:max-w-full pt-16">
+              <SheetContent 
+                side="right" 
+                className="w-full px-0 sm:max-w-full pt-16 border-none"
+                // Remove the default close button from SheetContent
+                hideCloseButton={true}
+              >
                 <div className="h-full flex flex-col">
-                  {/* Close button */}
+                  {/* Custom close button - positioned more precisely */}
                   <button
                     onClick={() => setIsOpen(false)}
-                    className="absolute top-4 right-4 p-2 rounded-md text-brand-gray-600 hover:text-brand-blue focus:outline-none"
+                    className="absolute top-4 right-4 p-2 rounded-md text-brand-gray-600 hover:text-brand-blue hover:bg-transparent focus:bg-transparent focus:outline-none"
                     aria-label="Close menu"
                   >
-                    <X className="h-6 w-6" />
+                    <X className="h-7 w-7" />
                   </button>
                   
                   {/* Navigation Links */}
                   <div className="flex-1 overflow-auto px-6">
-                    <div className="flex flex-col py-4 space-y-2">
-                      <NavLink to="/" onClick={closeMobileMenu}>Home</NavLink>
+                    <div className="flex flex-col py-6 space-y-3">
+                      <Link 
+                        to="/" 
+                        className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        Home
+                      </Link>
                       <a 
                         href="#how-it-works" 
-                        className="text-brand-gray-600 hover:text-brand-blue transition-colors px-3 py-2 rounded-md text-sm font-medium"
+                        className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium"
                         onClick={handleHowItWorksClick}
                       >
                         How It Works
                       </a>
-                      <NavLink to="/therapists" onClick={closeMobileMenu}>Our Therapists</NavLink>
-                      <NavLink to="/pricing" onClick={closeMobileMenu}>Pricing</NavLink>
-                      <NavLink to="/about" onClick={closeMobileMenu}>About Us</NavLink>
+                      <Link 
+                        to="/therapists" 
+                        className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        Our Therapists
+                      </Link>
+                      <Link 
+                        to="/pricing" 
+                        className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        Pricing
+                      </Link>
+                      <Link 
+                        to="/about" 
+                        className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium"
+                        onClick={closeMobileMenu}
+                      >
+                        About Us
+                      </Link>
                       {isLoggedIn && (
-                        <NavLink to="/dashboard" onClick={closeMobileMenu}>Dashboard</NavLink>
+                        <Link 
+                          to="/dashboard" 
+                          className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium"
+                          onClick={closeMobileMenu}
+                        >
+                          Dashboard
+                        </Link>
                       )}
                     </div>
                   </div>
@@ -183,10 +218,10 @@ export default function Navbar() {
                       </>
                     ) : (
                       <div className="grid gap-3">
-                        <Button className="w-full" asChild onClick={closeMobileMenu}>
+                        <Button className="w-full text-base py-5" asChild onClick={closeMobileMenu}>
                           <Link to="/signup">Join Now</Link>
                         </Button>
-                        <Button variant="outline" className="w-full" asChild onClick={closeMobileMenu}>
+                        <Button variant="outline" className="w-full text-base py-5" asChild onClick={closeMobileMenu}>
                           <Link to="/login">Log In</Link>
                         </Button>
                       </div>

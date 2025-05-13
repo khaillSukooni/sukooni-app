@@ -4,7 +4,7 @@ import { CheckCircle } from "lucide-react";
 
 const ValueSection = () => {
   return (
-    <section className="py-20 bg-white relative overflow-hidden">
+    <section className="py-20 bg-[#FEF9EE] relative overflow-hidden">
       <div className="container mx-auto px-4">
         <div className="flex flex-col-reverse md:flex-row items-center gap-12">
           <div className="w-full md:w-1/2 space-y-8">
@@ -24,7 +24,7 @@ const ValueSection = () => {
                 "Licensed & verified therapists",
                 "Convenient online access"
               ].map((feature, index) => (
-                <div key={index} className="flex items-center gap-3 bg-brand-gray-100/50 p-4 rounded-xl">
+                <div key={index} className="flex items-center gap-3 bg-white p-4 rounded-xl">
                   <CheckCircle className="text-brand-teal h-6 w-6 flex-shrink-0" />
                   <p className="font-medium">{feature}</p>
                 </div>
@@ -36,8 +36,8 @@ const ValueSection = () => {
             <div className="relative">
               <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-teal/10 blur-3xl"></div>
               <img
-                src="https://images.unsplash.com/photo-1516726817505-f5ed825624d8?q=80&w=600&auto=format&fit=crop"
-                alt="Therapist with client"
+                src="/lovable-uploads/7f63572a-7bec-473c-a714-d59f3f462ab7.png"
+                alt="Smiling man in light shirt"
                 className="rounded-2xl shadow-lg w-full max-w-md mx-auto object-cover aspect-[4/3]"
               />
             </div>
