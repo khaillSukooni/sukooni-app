@@ -18,6 +18,14 @@ const NavLink = ({ to, children, onClick }: { to: string; children: React.ReactN
   </Link>
 );
 
+// Smooth scroll function to navigate to section by ID
+const scrollToSection = (id: string) => {
+  const element = document.getElementById(id);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, profile, signOut } = useAuth();
@@ -38,6 +46,12 @@ export default function Navbar() {
   }, [isOpen]);
 
   const closeMobileMenu = () => setIsOpen(false);
+
+  const handleHowItWorksClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    scrollToSection('how-it-works');
+    closeMobileMenu();
+  };
   
   return (
     <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-brand-gray-200">
@@ -51,11 +65,17 @@ export default function Navbar() {
           
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-1">
-            <NavLink to="/about">About</NavLink>
+            <NavLink to="/">Home</NavLink>
+            <a 
+              href="#how-it-works" 
+              className="text-brand-gray-600 hover:text-brand-blue transition-colors px-3 py-2 rounded-md text-sm font-medium"
+              onClick={handleHowItWorksClick}
+            >
+              How It Works
+            </a>
             <NavLink to="/therapists">Our Therapists</NavLink>
-            <NavLink to="/services">Services</NavLink>
-            <NavLink to="/organizations">Organizations</NavLink>
-            <NavLink to="/contact">Contact</NavLink>
+            <NavLink to="/pricing">Pricing</NavLink>
+            <NavLink to="/about">About Us</NavLink>
             
             {/* Show dashboard link if user is logged in */}
             {isLoggedIn && (
@@ -86,7 +106,7 @@ export default function Navbar() {
                   <Link to="/login">Log In</Link>
                 </Button>
                 <Button asChild>
-                  <Link to="/signup">Sign Up</Link>
+                  <Link to="/signup">Join Now</Link>
                 </Button>
               </>
             )}
@@ -118,11 +138,17 @@ export default function Navbar() {
                   {/* Navigation Links */}
                   <div className="flex-1 overflow-auto px-6">
                     <div className="flex flex-col py-4 space-y-2">
-                      <NavLink to="/about" onClick={closeMobileMenu}>About</NavLink>
+                      <NavLink to="/" onClick={closeMobileMenu}>Home</NavLink>
+                      <a 
+                        href="#how-it-works" 
+                        className="text-brand-gray-600 hover:text-brand-blue transition-colors px-3 py-2 rounded-md text-sm font-medium"
+                        onClick={handleHowItWorksClick}
+                      >
+                        How It Works
+                      </a>
                       <NavLink to="/therapists" onClick={closeMobileMenu}>Our Therapists</NavLink>
-                      <NavLink to="/services" onClick={closeMobileMenu}>Services</NavLink>
-                      <NavLink to="/organizations" onClick={closeMobileMenu}>Organizations</NavLink>
-                      <NavLink to="/contact" onClick={closeMobileMenu}>Contact</NavLink>
+                      <NavLink to="/pricing" onClick={closeMobileMenu}>Pricing</NavLink>
+                      <NavLink to="/about" onClick={closeMobileMenu}>About Us</NavLink>
                       {isLoggedIn && (
                         <NavLink to="/dashboard" onClick={closeMobileMenu}>Dashboard</NavLink>
                       )}
@@ -158,7 +184,7 @@ export default function Navbar() {
                     ) : (
                       <div className="grid gap-3">
                         <Button className="w-full" asChild onClick={closeMobileMenu}>
-                          <Link to="/signup">Sign Up</Link>
+                          <Link to="/signup">Join Now</Link>
                         </Button>
                         <Button variant="outline" className="w-full" asChild onClick={closeMobileMenu}>
                           <Link to="/login">Log In</Link>

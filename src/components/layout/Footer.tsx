@@ -73,10 +73,10 @@ export default function Footer() {
         
         <div className="border-t border-brand-gray-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-brand-gray-500 text-sm">
-            © {new Date().getFullYear()} TherapyTalk. All rights reserved.
+            © {new Date().getFullYear()} Sukooni. All rights reserved.
           </p>
           <p className="text-brand-gray-500 text-sm mt-2 md:mt-0">
-            If you are in crisis, please call the National Suicide Prevention Lifeline at 988.
+            If you are in crisis, please call or text the 24/7 Suicide & Crisis Lifeline at +971 4 393 0009 anytime.
           </p>
         </div>
       </div>

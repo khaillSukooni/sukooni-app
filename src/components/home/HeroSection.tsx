@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const HeroSection = () => {
   return (
@@ -26,7 +27,7 @@ const HeroSection = () => {
             
             <div className="flex flex-wrap gap-4 justify-center md:justify-start">
               <Button size="lg" className="rounded-full px-6" asChild>
-                <Link to="/signup">Get Started <ArrowRight className="ml-2 h-5 w-5" /></Link>
+                <Link to="/signup">Join Now <ArrowRight className="ml-2 h-5 w-5" /></Link>
               </Button>
               <Button variant="outline" size="lg" className="rounded-full px-6" asChild>
                 <Link to="/therapists">Browse Therapists</Link>
@@ -55,16 +56,16 @@ const HeroSection = () => {
           </div>
           
           <div className="w-full md:w-1/2 flex justify-center md:justify-end">
-            <div className="relative">
+            <div className="relative max-w-md w-full">
               <div className="absolute -inset-1 bg-gradient-to-r from-brand-blue to-brand-teal rounded-3xl blur opacity-20"></div>
-              <div className="relative bg-white rounded-3xl shadow-xl p-2 max-w-md">
-                <div className="aspect-[4/5] bg-brand-gray-100 rounded-2xl flex items-center justify-center overflow-hidden">
+              <div className="relative bg-white rounded-3xl shadow-xl p-2">
+                <AspectRatio ratio={4/5} className="bg-brand-blue/10 rounded-2xl overflow-hidden">
                   <img 
-                    src="https://images.unsplash.com/photo-1573497620053-ea5300f94f21?q=80&w=600&auto=format&fit=crop"
-                    alt="Online therapy session"
+                    src="/lovable-uploads/c2f5d2d0-79e3-4566-8274-b7fb6e23fce1.png"
+                    alt="Sukooni video therapy session"
                     className="w-full h-full object-cover"
                   />
-                </div>
+                </AspectRatio>
               </div>
             </div>
           </div>
