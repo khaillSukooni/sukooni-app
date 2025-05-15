@@ -9,7 +9,7 @@ const ValueSection = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center gap-12">
           {/* Text content - will appear first on mobile and left on desktop */}
-          <div className="w-full md:w-1/2 space-y-8 order-2 md:order-1">
+          <div className="w-full md:w-1/2 space-y-8 order-1 md:order-1">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 We are dedicated to making world-class therapy
@@ -35,7 +35,7 @@ const ValueSection = () => {
           </div>
           
           {/* Image section - will appear second on mobile and right on desktop */}
-          <div className="w-full md:w-1/2 order-1 md:order-2">
+          <div className="w-full md:w-1/2 order-2 md:order-2">
             <div className="relative">
               <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-teal/10 blur-3xl"></div>
               <div className="p-2 rounded-2xl shadow-lg bg-white">
