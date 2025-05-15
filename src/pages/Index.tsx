@@ -7,6 +7,7 @@ import ValueSection from "@/components/home/ValueSection";
 import HowItWorks from "@/components/home/HowItWorks";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import CTASection from "@/components/home/CTASection";
+import TherapistCarouselSection from "@/components/home/TherapistCarouselSection";
 
 const Index = () => {
   return (
@@ -15,6 +16,7 @@ const Index = () => {
       <main className="flex-grow">
         <HeroSection />
         <ValueSection />
+        <TherapistCarouselSection />
         <HowItWorks />
         <TestimonialsSection />
         <CTASection />
