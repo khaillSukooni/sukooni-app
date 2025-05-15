@@ -9,7 +9,7 @@ const ValueSection = () => {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center gap-12">
           {/* Text content - will appear first on mobile and left on desktop */}
-          <div className="w-full md:w-1/2 space-y-8 order-1 md:order-1">
+          <div className="w-full md:w-1/2 space-y-8 order-1 md:order-1 text-center md:text-left">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 We are dedicated to making world-class therapy
