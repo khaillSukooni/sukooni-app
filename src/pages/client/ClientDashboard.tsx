@@ -34,8 +34,7 @@ const ClientDashboard = () => {
             end_time, 
             status,
             therapist:therapist_id(
-              id,
-              therapist_profiles:profiles(first_name, last_name)
+              profiles(first_name, last_name)
             )
           `)
           .eq("client_id", profile?.id)
@@ -49,9 +48,7 @@ const ClientDashboard = () => {
         
         // Transform the data to match the expected Appointment type
         if (data) {
-          // Access the nested therapist_profiles object which contains first_name and last_name
-          const therapistProfiles = data.therapist?.therapist_profiles || {};
-          
+          const therapistProfiles = data.therapist?.profiles || {};
           const appointmentData = {
             ...data,
             therapist: {
