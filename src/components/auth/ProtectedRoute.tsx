@@ -12,7 +12,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedRoles = [],
   redirectTo = "/login",
 }) => {
-  const { user, profile, isLoading } = useAuth();
+  const { user, profile, isLoading, getDashboardRoute } = useAuth();
 
   // If authentication is still loading, show nothing
   if (isLoading) {
@@ -33,8 +33,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const hasAllowedRole = profile && allowedRoles.includes(profile.role as UserRole);
   
   if (!hasAllowedRole) {
-    // Redirect to homepage if user doesn't have the right role
-    return <Navigate to="/" replace />;
+    // Redirect to appropriate dashboard if user doesn't have the right role
+    return <Navigate to={getDashboardRoute()} replace />;
   }
 
   return <Outlet />;

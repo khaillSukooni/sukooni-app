@@ -20,7 +20,7 @@ import Logo from "@/components/ui/Logo";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
+  const { signIn, getDashboardRoute } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<LoginFormValues>({
@@ -35,7 +35,7 @@ const Login = () => {
     try {
       setIsSubmitting(true);
       await signIn(values.email, values.password);
-      navigate("/dashboard");
+      navigate(getDashboardRoute());
     } catch (error) {
       console.error("Login error:", error);
     } finally {

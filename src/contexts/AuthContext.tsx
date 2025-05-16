@@ -15,6 +15,7 @@ interface AuthContextType {
   isClient: boolean;
   isTherapist: boolean;
   isAdmin: boolean;
+  getDashboardRoute: () => string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -129,6 +130,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isTherapist = profile?.role === "therapist";
   const isAdmin = profile?.role === "admin";
 
+  const getDashboardRoute = () => {
+    if (isClient) return "/dashboard/client";
+    if (isTherapist) return "/dashboard/therapist";
+    if (isAdmin) return "/dashboard/admin";
+    return "/dashboard";
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -141,6 +149,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isClient,
         isTherapist,
         isAdmin,
+        getDashboardRoute,
       }}
     >
       {children}

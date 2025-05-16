@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
@@ -15,6 +15,12 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Dashboard from "./pages/Dashboard";
 import Therapists from "./pages/Therapists";
+
+import ClientDashboardLayout from "./components/layout/ClientDashboardLayout";
+import ClientDashboard from "./pages/client/ClientDashboard";
+import ClientAppointments from "./pages/client/ClientAppointments";
+import ClientProfile from "./pages/client/ClientProfile";
+import ClientSettings from "./pages/client/ClientSettings";
 
 const queryClient = new QueryClient();
 
@@ -38,9 +44,16 @@ const AppRoutes = () => (
 
     {/* Client-specific routes */}
     <Route element={<ProtectedRoute allowedRoles={["client"]} />}>
-      <Route path="/appointments" element={<NotFound />} />
-      <Route path="/book/:therapistId" element={<NotFound />} />
+      <Route path="/dashboard/client" element={<ClientDashboardLayout />}>
+        <Route index element={<ClientDashboard />} />
+        <Route path="appointments" element={<ClientAppointments />} />
+        <Route path="profile" element={<ClientProfile />} />
+        <Route path="settings" element={<ClientSettings />} />
+      </Route>
     </Route>
+
+    {/* Redirects to role-specific dashboards */}
+    <Route path="/dashboard" element={<DashboardRedirect />} />
 
     {/* Therapist-specific routes */}
     <Route element={<ProtectedRoute allowedRoles={["therapist"]} />}>
@@ -73,6 +86,12 @@ const AppRoutes = () => (
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
+
+// Helper component to redirect to the appropriate dashboard
+const DashboardRedirect = () => {
+  const { getDashboardRoute } = useAuth();
+  return <Navigate to={getDashboardRoute()} replace />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
