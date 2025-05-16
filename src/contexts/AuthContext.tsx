@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthUser, UserProfile } from "@/lib/types/auth";
@@ -25,16 +24,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // 1️⃣ Get initial session + profile on mount
   useEffect(() => {
-    // Get initial session
     const getInitialSession = async () => {
       try {
         const { data } = await supabase.auth.getSession();
-        setUser(data.session?.user || null);
-        
-        if (data.session?.user) {
-          const profile = await getUserProfile(data.session.user.id);
-          setProfile(profile);
+        const currentUser = data.session?.user ?? null;
+        setUser(currentUser);
+
+        if (currentUser?.id) {
+          const userProfile = await getUserProfile(currentUser.id);
+          setProfile(userProfile);
         }
       } catch (error) {
         console.error("Error getting initial session:", error);
@@ -45,13 +45,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     getInitialSession();
 
-    // Set up auth state listener
-    const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setUser(session?.user || null);
-      
-      if (session?.user) {
-        const profile = await getUserProfile(session.user.id);
-        setProfile(profile);
+    // 2️⃣ Subscribe to auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+
+      if (currentUser?.id) {
+        const userProfile = await getUserProfile(currentUser.id);
+        setProfile(userProfile);
       } else {
         setProfile(null);
       }
@@ -59,16 +60,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
     });
 
-    // Cleanup
     return () => {
-      data.subscription.unsubscribe();
+      authListener?.subscription.unsubscribe();
     };
   }, []);
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -80,9 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) throw error;
-
-      // The profile will be created by the database trigger
-      toast.success("Account created successfully! Please check your email for verification.");
+      toast.success("Account created successfully! Please check your email.");
     } catch (error: any) {
       toast.error(error.message || "An error occurred during sign up.");
       throw error;
@@ -94,15 +92,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) throw error;
 
-      const profile = await getUserProfile(data.user.id);
-      setProfile(profile);
+      const currentUser = data?.user;
+      if (currentUser?.id) {
+        setUser(currentUser);
+        const userProfile = await getUserProfile(currentUser.id);
+        setProfile(userProfile);
+      }
+
       toast.success("Logged in successfully!");
     } catch (error: any) {
       toast.error(error.message || "Invalid login credentials.");
