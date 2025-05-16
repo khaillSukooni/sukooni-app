@@ -29,13 +29,15 @@ const ClientDashboard = () => {
         const { data, error } = await supabase
           .from("appointments")
           .select(`
-            id, 
-            start_time, 
-            end_time, 
-            status,
-            therapist_id,
-            therapist:therapist_id(id)
-          `)
+  id,
+  start_time,
+  end_time,
+  status,
+  therapist (
+    first_name,
+    last_name
+  )
+`)
           .eq("client_id", profile?.id)
           .eq("status", "scheduled")
           .gte("start_time", new Date().toISOString())
@@ -45,24 +47,16 @@ const ClientDashboard = () => {
 
         if (error) throw error;
         
-        // After getting the appointment, fetch the therapist's profile details separately
+        // Transform the data to match the expected Appointment type
         if (data) {
-          const { data: therapistData, error: therapistError } = await supabase
-            .from("profiles")
-            .select("first_name, last_name")
-            .eq("id", data.therapist_id)
-            .single();
-            
-          if (therapistError) throw therapistError;
+          // Access the nested therapist_profiles object which contains first_name and last_name
+          const therapistProfiles = data.therapist?.therapist_profiles || {};
           
-          const appointmentData: Appointment = {
-            id: data.id,
-            start_time: data.start_time,
-            end_time: data.end_time,
-            status: data.status,
+          const appointmentData = {
+            ...data,
             therapist: {
-              first_name: therapistData?.first_name || '',
-              last_name: therapistData?.last_name || ''
+              first_name: therapistProfiles.first_name || '',
+              last_name: therapistProfiles.last_name || ''
             }
           };
           
