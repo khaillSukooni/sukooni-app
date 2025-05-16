@@ -29,15 +29,15 @@ const ClientDashboard = () => {
         const { data, error } = await supabase
           .from("appointments")
           .select(`
-  id,
-  start_time,
-  end_time,
-  status,
-  therapist (
-    first_name,
-    last_name
-  )
-`)
+            id, 
+            start_time, 
+            end_time, 
+            status,
+            therapist:therapist_id(
+              id,
+              therapist_profiles:profiles(first_name, last_name)
+            )
+          `)
           .eq("client_id", profile?.id)
           .eq("status", "scheduled")
           .gte("start_time", new Date().toISOString())
