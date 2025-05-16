@@ -34,8 +34,7 @@ const ClientDashboard = () => {
             end_time, 
             status,
             therapist:therapist_id(
-              first_name:profiles(first_name),
-              last_name:profiles(last_name)
+              profiles(first_name, last_name)
             )
           `)
           .eq("client_id", profile?.id)
@@ -47,7 +46,19 @@ const ClientDashboard = () => {
 
         if (error) throw error;
         
-        setNextAppointment(data);
+        // Transform the data to match the expected Appointment type
+        if (data) {
+          const therapistProfiles = data.therapist?.profiles || {};
+          const appointmentData = {
+            ...data,
+            therapist: {
+              first_name: therapistProfiles.first_name || '',
+              last_name: therapistProfiles.last_name || ''
+            }
+          };
+          
+          setNextAppointment(appointmentData);
+        }
       } catch (error) {
         console.error("Error fetching next appointment:", error);
         setNextAppointment(null);

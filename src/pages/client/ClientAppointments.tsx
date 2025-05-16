@@ -37,8 +37,7 @@ const ClientAppointments = () => {
             status,
             notes,
             therapist:therapist_id(
-              first_name:profiles(first_name),
-              last_name:profiles(last_name)
+              profiles(first_name, last_name)
             )
           `)
           .eq("client_id", profile?.id)
@@ -46,7 +45,18 @@ const ClientAppointments = () => {
 
         if (error) throw error;
         
-        setAppointments(data || []);
+        // Transform the data to match the expected Appointment type
+        if (data) {
+          const formattedData = data.map(item => ({
+            ...item,
+            therapist: {
+              first_name: item.therapist?.profiles?.first_name || '',
+              last_name: item.therapist?.profiles?.last_name || ''
+            }
+          }));
+          
+          setAppointments(formattedData);
+        }
       } catch (error) {
         console.error("Error fetching appointments:", error);
         setAppointments([]);
