@@ -81,7 +81,6 @@ export default function Navbar() {
             <NavLink to="/therapists">Our Therapists</NavLink>
             <NavLink to="/pricing">Pricing</NavLink>
             <NavLink to="/about">About Us</NavLink>
-            {isLoggedIn && <NavLink to="/dashboard/client">Dashboard</NavLink>}
           </div>
 
           {/* Desktop Auth Buttons */}
