@@ -80,6 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
+      // The profile will be created by the database trigger
       toast.success("Account created successfully! Please check your email for verification.");
     } catch (error: any) {
       toast.error(error.message || "An error occurred during sign up.");

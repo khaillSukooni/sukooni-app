@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignupFormValues, signupSchema } from "@/lib/validation/auth";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/components/ui/sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -38,9 +39,11 @@ const Signup = () => {
     try {
       setIsSubmitting(true);
       await signUp(values.email, values.password, values.firstName, values.lastName);
+      toast.success("Account created successfully! Please check your email to verify your account.");
       navigate("/login", { state: { message: "Please check your email to verify your account." } });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Signup error:", error);
+      toast.error(error.message || "An error occurred during sign up.");
     } finally {
       setIsSubmitting(false);
     }
