@@ -30,14 +30,19 @@ const TherapistList: React.FC<TherapistListProps> = ({ therapists }) => {
           <p className="text-muted-foreground">Try adjusting your filters or search criteria to see more results.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="flex flex-wrap -mx-3">
           {therapists.map((therapist) => (
-            <div key={therapist.id} className="flex-shrink-0">
-              <TherapistCard 
-                therapist={therapist} 
-                isExpanded={expandedTherapistIds.has(therapist.id)}
-                onToggleExpand={() => toggleExpanded(therapist.id)}
-              />
+            <div 
+              key={therapist.id} 
+              className="w-full md:w-1/2 px-3 mb-6"
+            >
+              <div className="h-full">
+                <TherapistCard 
+                  therapist={therapist} 
+                  isExpanded={expandedTherapistIds.has(therapist.id)}
+                  onToggleExpand={() => toggleExpanded(therapist.id)}
+                />
+              </div>
             </div>
           ))}
         </div>

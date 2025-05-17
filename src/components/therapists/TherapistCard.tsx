@@ -13,6 +13,11 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Languages, Clock, ChevronDown, ChevronUp, UserRound } from "lucide-react";
 import { Therapist } from "@/lib/types/therapist";
+import { 
+  Collapsible, 
+  CollapsibleContent, 
+  CollapsibleTrigger 
+} from "@/components/ui/collapsible";
 
 interface TherapistCardProps {
   therapist: Therapist;
@@ -76,57 +81,59 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
         </div>
       </CardContent>
       
-      {/* Conditionally render expanded content */}
-      {isExpanded && (
-        <CardContent className="border-t pt-4">
-          <div className="space-y-4">
-            <div>
-              <h4 className="text-sm font-medium mb-2">About Me</h4>
-              <p className="text-sm">{therapist.longBio}</p>
-            </div>
-            
-            <div>
-              <h4 className="text-sm font-medium mb-2">Qualifications</h4>
-              <ul className="text-sm list-disc pl-5 space-y-1">
-                {therapist.qualifications.map((qualification, index) => (
-                  <li key={index}>{qualification}</li>
-                ))}
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="text-sm font-medium mb-2">Areas of Focus</h4>
-              <div className="flex flex-wrap gap-1">
-                {therapist.focusAreas.map((area, index) => (
-                  <Badge key={index} variant="secondary" className="bg-secondary/10">
-                    {area}
-                  </Badge>
-                ))}
+      <Collapsible open={isExpanded} onOpenChange={onToggleExpand} className="w-full">
+        <CollapsibleContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
+          <CardContent className="border-t pt-4">
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-sm font-medium mb-2">About Me</h4>
+                <p className="text-sm">{therapist.longBio}</p>
               </div>
+              
+              <div>
+                <h4 className="text-sm font-medium mb-2">Qualifications</h4>
+                <ul className="text-sm list-disc pl-5 space-y-1">
+                  {therapist.qualifications.map((qualification, index) => (
+                    <li key={index}>{qualification}</li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium mb-2">Areas of Focus</h4>
+                <div className="flex flex-wrap gap-1">
+                  {therapist.focusAreas.map((area, index) => (
+                    <Badge key={index} variant="secondary" className="bg-secondary/10">
+                      {area}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+              
+              <Button className="w-full">Book a Session</Button>
             </div>
-            
-            <Button className="w-full">Book a Session</Button>
-          </div>
-        </CardContent>
-      )}
-      
-      <CardFooter>
-        <Button 
-          variant="ghost" 
-          onClick={onToggleExpand} 
-          className="w-full text-primary"
-        >
-          {isExpanded ? (
-            <span className="flex items-center">
-              Show Less <ChevronUp className="ml-1 h-4 w-4" />
-            </span>
-          ) : (
-            <span className="flex items-center">
-              Learn More <ChevronDown className="ml-1 h-4 w-4" />
-            </span>
-          )}
-        </Button>
-      </CardFooter>
+          </CardContent>
+        </CollapsibleContent>
+        
+        <CardFooter>
+          <CollapsibleTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="w-full text-primary"
+            >
+              {isExpanded ? (
+                <span className="flex items-center">
+                  Show Less <ChevronUp className="ml-1 h-4 w-4" />
+                </span>
+              ) : (
+                <span className="flex items-center">
+                  Learn More <ChevronDown className="ml-1 h-4 w-4" />
+                </span>
+              )}
+            </Button>
+          </CollapsibleTrigger>
+        </CardFooter>
+      </Collapsible>
     </Card>
   );
 };
