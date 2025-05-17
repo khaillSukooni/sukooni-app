@@ -16,7 +16,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   redirectTo = "/login",
   children,
 }) => {
-  const { user, profile, isLoading, isAuthenticated, getDashboardRoute, isProfileLoading, refreshUserData } = useAuth();
+  const { 
+    user, 
+    profile, 
+    isLoading, 
+    isAuthenticated, 
+    getDashboardRoute, 
+    isProfileLoading, 
+    refreshUserData 
+  } = useAuth();
   const location = useLocation();
 
   // Attempt to refresh user data if authenticated but no profile
@@ -51,6 +59,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
+    console.log("Not authenticated, redirecting to login");
     return <Navigate to={redirectTo} replace state={{ from: location.pathname }} />;
   }
 
@@ -59,10 +68,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return children ? <>{children}</> : <Outlet />;
   }
   
-  // If we have a user but no profile yet, wait for profile or redirect to dashboard
+  // If we have a user but no profile yet, show loading state or redirect
   if (user && !profile) {
-    console.log("User authenticated but profile not loaded yet. Redirecting to dashboard.");
-    return <Navigate to="/dashboard" replace />;
+    // Give the system another chance to load the profile for a specific amount of time
+    console.log("User authenticated but profile not loaded yet");
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="mt-2 text-muted-foreground">Loading profile data...</p>
+      </div>
+    );
   }
 
   // Check if user has an allowed role

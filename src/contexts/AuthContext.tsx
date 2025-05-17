@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useEffect, useContext, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, clearAuthState } from "@/integrations/supabase/client";
 import { AuthUser, UserProfile } from "@/lib/types/auth";
 import { getUserProfile } from "@/lib/utils/auth";
 import { toast } from "@/components/ui/sonner";
@@ -65,6 +65,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentSession = data.session;
       const currentUser = currentSession?.user ?? null;
       
+      console.log("Current session:", currentSession ? "Session exists" : "No session");
+      
       setSession(currentSession);
       setUser(currentUser);
       setIsAuthenticated(!!currentUser);
@@ -87,44 +89,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Set up auth listener and get initial session
   useEffect(() => {
-    // Set initial loading state
+    console.log("Setting up auth state listener...");
     setIsLoading(true);
     
     // Set up auth state change listener
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log("Auth state changed:", event, newSession ? "Session exists" : "No session");
       
-      const currentUser = newSession?.user ?? null;
-      
       // Synchronously update basic auth state
       setSession(newSession);
-      setUser(currentUser);
-      setIsAuthenticated(!!currentUser);
+      setUser(newSession?.user ?? null);
+      setIsAuthenticated(!!newSession?.user);
       
       // If we have a user, fetch their profile asynchronously
-      if (currentUser?.id) {
+      if (newSession?.user?.id) {
         try {
           setIsProfileLoading(true);
-          const userProfile = await getUserProfile(currentUser.id);
-          console.log("Profile after auth change:", userProfile ? "Profile found" : "No profile");
-          setProfile(userProfile);
+          // Use setTimeout to avoid potential deadlocks with Supabase auth
+          setTimeout(async () => {
+            const userProfile = await getUserProfile(newSession.user.id);
+            console.log("Profile after auth change:", userProfile ? "Profile found" : "No profile");
+            setProfile(userProfile);
+            setIsProfileLoading(false);
+          }, 0);
         } catch (error) {
           console.error("Error fetching profile after auth change:", error);
           setProfile(null);
-        } finally {
           setIsProfileLoading(false);
-          setIsLoading(false);
         }
       } else {
         setProfile(null);
-        setIsLoading(false);
+        setIsProfileLoading(false);
       }
+      
+      // For sign out events, ensure we clean up properly
+      if (event === 'SIGNED_OUT') {
+        setProfile(null);
+        setUser(null);
+        setSession(null);
+        setIsAuthenticated(false);
+      }
+      
+      setIsLoading(false);
     });
     
     // Check initial session
     const checkInitialSession = async () => {
       try {
         const { data: { session: initialSession } } = await supabase.auth.getSession();
+        console.log("Initial session check:", initialSession ? "Session exists" : "No session");
         
         // Update session state
         const currentUser = initialSession?.user ?? null;
@@ -144,10 +157,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } finally {
             setIsProfileLoading(false);
           }
+        } else {
+          setIsLoading(false);
         }
       } catch (error) {
         console.error("Error checking initial session:", error);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -158,7 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, [fetchUserProfile]);
+  }, []);
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
@@ -207,20 +221,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signOut = async () => {
     try {
       setIsLoading(true);
+      console.log("AuthContext: Signing out user...");
+      
+      // Sign out from Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) throw error;
       
-      // Clear auth state
+      // Clear auth state manually to ensure complete logout
       setUser(null);
       setProfile(null);
       setSession(null);
       setIsAuthenticated(false);
       
+      // Force clean local storage to ensure complete signout
+      clearAuthState();
+      
+      // Show success message
       toast.success("Logged out successfully!");
+      
+      // Force page reload to ensure clean state
+      window.location.href = '/';
     } catch (error: any) {
       console.error("Error signing out:", error);
       toast.error(error.message || "Error signing out.");
+      
+      // Even if there's an error, clear local state and force reload
+      clearAuthState();
+      window.location.href = '/';
     } finally {
       setIsLoading(false);
     }

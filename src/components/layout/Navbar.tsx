@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/Logo";
-import { Menu, X, LogOut, LayoutDashboard, FileText, Shield } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, FileText, Shield, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -36,7 +36,15 @@ const scrollToSection = (id: string) => {
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, profile, signOut, getDashboardRoute, isAuthenticated, isLoading } = useAuth();
+  const { 
+    user, 
+    profile, 
+    signOut, 
+    getDashboardRoute, 
+    isAuthenticated, 
+    isLoading, 
+    isProfileLoading 
+  } = useAuth();
   
   // Add debug logging to see what's happening with auth state
   useEffect(() => {
@@ -45,9 +53,10 @@ export default function Navbar() {
       hasUser: !!user, 
       hasProfile: !!profile,
       isLoading,
+      isProfileLoading,
       path: window.location.pathname
     });
-  }, [isAuthenticated, user, profile, isLoading]);
+  }, [isAuthenticated, user, profile, isLoading, isProfileLoading]);
   
   useEffect(() => {
     if (isOpen) {
@@ -68,9 +77,10 @@ export default function Navbar() {
     closeMobileMenu();
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent any default link behavior
+    console.log("Sign out clicked");
     signOut();
-    navigate('/');
     closeMobileMenu();
   };
   
@@ -115,6 +125,9 @@ export default function Navbar() {
     return profile.email || "";
   };
 
+  // Determine if we should show loading state
+  const showProfileLoading = isAuthenticated && (isProfileLoading || !profile);
+
   return (
     <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-brand-gray-200">
       <div className="container-tight py-4">
@@ -147,30 +160,50 @@ export default function Navbar() {
           
           <div className="hidden md:flex items-center space-x-4">
             {/* Always show appropriate authentication UI */}
-            {isAuthenticated && user ? (
+            {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none" asChild>
                   <Button variant="ghost" className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
                     <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-brand-blue text-white text-sm">
-                          {getInitials()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-sm text-brand-gray-600">
-                        {getFullName() || "Loading..."}
-                      </span>
+                      {showProfileLoading ? (
+                        <>
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="bg-gray-200">
+                              <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm text-muted-foreground">Loading...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Avatar className="h-8 w-8">
+                            <AvatarFallback className="bg-brand-blue text-white text-sm">
+                              {getInitials()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="text-sm text-brand-gray-600">
+                            {getFullName()}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-3 py-2">
-                    <p className="text-sm font-medium">
-                      {getFullName() || "Loading..."}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {profile?.email || user?.email || ""}
-                    </p>
+                    {showProfileLoading ? (
+                      <div className="flex items-center space-x-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <p className="text-sm font-medium">Loading profile...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <p className="text-sm font-medium">{getFullName()}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {profile?.email || user?.email || ""}
+                        </p>
+                      </>
+                    )}
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
@@ -263,18 +296,33 @@ export default function Navbar() {
                   </div>
                   
                   <div className="border-t border-brand-gray-200 bg-brand-gray-50/70 p-6 mt-auto">
-                    {isAuthenticated && user ? (
+                    {isAuthenticated ? (
                       <>
                         <div className="flex items-center gap-3 mb-4">
-                          <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-brand-blue text-white">
-                              {getInitials()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <p className="font-medium">{getFullName() || "Loading..."}</p>
-                            <p className="text-sm text-brand-gray-600">{profile?.email || user?.email || ""}</p>
-                          </div>
+                          {showProfileLoading ? (
+                            <>
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-gray-200 flex items-center justify-center">
+                                  <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">Loading profile...</p>
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-brand-blue text-white">
+                                  {getInitials()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium">{getFullName()}</p>
+                                <p className="text-sm text-brand-gray-600">{profile?.email || user?.email || ""}</p>
+                              </div>
+                            </>
+                          )}
                         </div>
                         <div className="grid gap-3">
                           <Button className="w-full justify-start gap-2" asChild onClick={closeMobileMenu}>
@@ -283,7 +331,11 @@ export default function Navbar() {
                               My Dashboard
                             </Link>
                           </Button>
-                          <Button variant="outline" className="w-full justify-start gap-2 text-red-600" onClick={handleSignOut}>
+                          <Button 
+                            variant="outline" 
+                            className="w-full justify-start gap-2 text-red-600" 
+                            onClick={handleSignOut}
+                          >
                             <LogOut className="h-4 w-4" />
                             Sign Out
                           </Button>

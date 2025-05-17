@@ -5,22 +5,36 @@ import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 
 const DashboardRedirect = () => {
-  const { user, profile, isProfileLoading, getDashboardRoute, refreshUserData } = useAuth();
+  const { 
+    user, 
+    profile, 
+    isProfileLoading, 
+    getDashboardRoute, 
+    refreshUserData, 
+    isAuthenticated 
+  } = useAuth();
 
   // If we don't have a profile yet but do have a user, try to fetch the profile
   useEffect(() => {
-    if (user && !profile && !isProfileLoading) {
+    if (isAuthenticated && user && !profile && !isProfileLoading) {
       console.log("DashboardRedirect: User authenticated but no profile. Refreshing user data...");
       refreshUserData();
     }
-  }, [user, profile, isProfileLoading, refreshUserData]);
+  }, [user, profile, isProfileLoading, refreshUserData, isAuthenticated]);
 
   console.log("DashboardRedirect state:", {
+    isAuthenticated,
     hasUser: !!user,
     hasProfile: !!profile,
     isProfileLoading,
     dashboardRoute: getDashboardRoute(),
   });
+
+  // If not authenticated at all, redirect to login
+  if (!isAuthenticated) {
+    console.log("Not authenticated, redirecting to login");
+    return <Navigate to="/login" replace />;
+  }
 
   // If profile is still loading, show loading indicator
   if (isProfileLoading) {
@@ -32,7 +46,8 @@ const DashboardRedirect = () => {
     );
   }
 
-  // Once we have the profile, or determined we won't get one, redirect to the appropriate dashboard
+  // Once we have the profile, or determined we won't get one after sufficient time,
+  // redirect to the appropriate dashboard
   const route = getDashboardRoute();
   console.log(`Redirecting to ${route}`);
   return <Navigate to={route} replace />;
