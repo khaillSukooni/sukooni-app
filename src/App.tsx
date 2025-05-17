@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,6 +13,7 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import Therapists from "./pages/Therapists";
+import ClientMessages from "./pages/client/ClientMessages";
 
 import ClientDashboardLayout from "./components/layout/ClientDashboardLayout";
 import ClientDashboard from "./pages/client/ClientDashboard";
@@ -64,7 +64,7 @@ const App = () => (
               <Route path="appointments" element={<ClientAppointments />} />
               <Route path="profile" element={<ClientProfile />} />
               <Route path="settings" element={<ClientSettings />} />
-              <Route path="messages" element={<NotFound />} />
+              <Route path="messages" element={<ClientMessages />} />
             </Route>
 
             {/* Therapist-specific routes */}
