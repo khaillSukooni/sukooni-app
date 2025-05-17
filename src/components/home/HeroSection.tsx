@@ -15,11 +15,11 @@ const HeroSection = () => {
       </div>
       
       <div className="container mx-auto px-4 py-16 md:py-24 lg:py-28 relative z-10">
-        <div className="flex flex-col md:flex-row items-center gap-12 md:gap-8">
+        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-6 lg:gap-8">
           <div className="w-full md:w-1/2 space-y-6 text-center md:text-left">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight text-[#34526c]">
               Peace of Mind, <br />
-              <span className="gradient-text">Just a Tap Away</span>
+              Just a Tap Away
             </h1>
             <p className="text-lg text-brand-gray-600 max-w-lg mx-auto md:mx-0">
               Connect with licensed therapists for convenient, confidential, and effective online therapy sessions from anywhere.

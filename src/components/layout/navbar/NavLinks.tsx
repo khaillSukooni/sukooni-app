@@ -34,12 +34,12 @@ const NavLinks = ({ links, handleHowItWorksClick }: NavLinksProps) => {
   };
 
   return (
-    <div className="hidden md:flex items-center space-x-1">
+    <div className="hidden md:flex items-center space-x-2">
       {links.map((link, index) => (
         <a 
           key={index}
           href={link.path} 
-          className="text-brand-gray-600 hover:text-brand-blue transition-colors px-3 py-2 rounded-md text-sm font-medium"
+          className="text-brand-gray-600 hover:text-brand-blue transition-colors px-4 py-2 rounded-md text-base md:text-lg font-medium leading-relaxed"
           onClick={(e) => handleNavClick(e, link.path)}
         >
           {link.title}
