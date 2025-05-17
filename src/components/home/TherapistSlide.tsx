@@ -4,7 +4,6 @@ import { Card } from "@/components/ui/card";
 import { Therapist } from "@/lib/types/therapist";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Circle, Languages, Clock } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 interface TherapistSlideProps {
   therapist: Therapist;
@@ -30,174 +29,19 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
     return abbrevMap[lang] || lang.substring(0, 2).toUpperCase();
   });
 
-  // Professional SVG silhouettes based on gender
-  const FemaleSilhouette = () => (
-    <svg
-      viewBox="0 0 200 300" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-full h-full"
-      preserveAspectRatio="xMidYMid meet"
-    >
-      {/* Background shape */}
-      <rect width="200" height="300" fill="#F8F8F8" />
-      
-      {/* Neck */}
-      <path d="M85 80V98 H115 V80 Z" fill="#E6E6E6" />
-      
-      {/* Head */}
-      <path 
-        d="M100,25 
-        a40,40 0 0 1 0,80 
-        a40,40 0 0 1 0,-80" 
-        fill="#FFFFFF" 
-      />
-      
-      {/* Hair */}
-      <path 
-        d="M60,65 
-        C60,40 75,20 100,20 
-        C125,20 140,40 140,65 
-        C140,35 125,15 100,15 
-        C75,15 60,35 60,65" 
-        fill="#E0E0E0" 
-      />
-      
-      {/* Shoulders and Body */}
-      <path 
-        d="M70,100 
-        L60,130 
-        L60,280 
-        L140,280 
-        L140,130 
-        L130,100 
-        Z" 
-        fill="#E6E6E6" 
-      />
-      
-      {/* Suit/Dress */}
-      <path 
-        d="M70,100 
-        L70,150 
-        L85,130 
-        L100,150 
-        L115,130 
-        L130,150 
-        L130,100 
-        Z" 
-        fill="#D9D9D9" 
-      />
-      
-      {/* Collar */}
-      <path 
-        d="M85,80 
-        L85,110 
-        L100,120 
-        L115,110 
-        L115,80 
-        Z" 
-        fill="#FFFFFF" 
-        stroke="#E0E0E0" 
-        strokeWidth="1" 
-      />
-    </svg>
-  );
-
-  const MaleSilhouette = () => (
-    <svg
-      viewBox="0 0 200 300" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-full h-full"
-      preserveAspectRatio="xMidYMid meet"
-    >
-      {/* Background shape */}
-      <rect width="200" height="300" fill="#F8F8F8" />
-      
-      {/* Neck */}
-      <path d="M85 80V98 H115 V80 Z" fill="#E6E6E6" />
-      
-      {/* Head */}
-      <path 
-        d="M100,25 
-        a40,40 0 0 1 0,80 
-        a40,40 0 0 1 0,-80" 
-        fill="#FFFFFF" 
-      />
-      
-      {/* Hair */}
-      <path 
-        d="M60,50
-        C60,30 75,15 100,15
-        C125,15 140,30 140,50
-        L140,60
-        C140,35 130,25 100,25
-        C70,25 60,35 60,60
-        Z" 
-        fill="#E0E0E0" 
-      />
-      
-      {/* Shoulders and Body - Wider for male */}
-      <path 
-        d="M65,100 
-        L50,130 
-        L50,280 
-        L150,280 
-        L150,130 
-        L135,100 
-        Z" 
-        fill="#E6E6E6" 
-      />
-      
-      {/* Suit Jacket */}
-      <path 
-        d="M65,100 
-        L65,170 
-        L100,165  
-        L135,170 
-        L135,100 
-        Z" 
-        fill="#D9D9D9" 
-      />
-      
-      {/* Shirt and Tie */}
-      <path 
-        d="M85,80 
-        L85,150 
-        L100,155 
-        L115,150 
-        L115,80 
-        Z" 
-        fill="#FFFFFF" 
-        stroke="#E0E0E0" 
-        strokeWidth="1" 
-      />
-      
-      {/* Tie */}
-      <path 
-        d="M95,100
-        L100,130
-        L105,100
-        Z"
-        fill="#D0D0D0"
-      />
-      <path
-        d="M97,130
-        L100,155
-        L103,130
-        Z"
-        fill="#D0D0D0"
-      />
-    </svg>
-  );
-
   return (
     <Card className="overflow-hidden rounded-xl shadow-md h-full">
       <div className="relative h-full">
         <AspectRatio ratio={3 / 4} className="bg-gray-100">
-          {/* Gender-specific silhouette avatar */}
+          {/* Gender-specific placeholder image */}
           <div className="h-full w-full flex items-center justify-center">
-            {therapist.gender === "Female" ? <FemaleSilhouette /> : <MaleSilhouette />}
+            <img
+              src={therapist.gender === "Female" 
+                ? "/lovable-uploads/442af295-4353-4d0e-b7bd-24016c1ed22a.png" 
+                : "/lovable-uploads/19bb3a42-bbc7-472b-8cbd-ab9c9df7df8f.png"}
+              alt={`${therapist.name} profile`}
+              className="w-full h-full object-cover"
+            />
           </div>
         </AspectRatio>
         
