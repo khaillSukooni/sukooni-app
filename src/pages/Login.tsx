@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormValues, loginSchema } from "@/lib/validation/auth";
@@ -20,8 +20,18 @@ import Logo from "@/components/ui/Logo";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, getDashboardRoute } = useAuth();
+  const location = useLocation();
+  const { signIn, getDashboardRoute, isAuthenticated, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      const redirectTo = location.state?.from || getDashboardRoute();
+      console.log("Login: User is already authenticated, redirecting to", redirectTo);
+      navigate(redirectTo, { replace: true });
+    }
+  }, [isAuthenticated, isLoading, getDashboardRoute, navigate, location.state]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -35,13 +45,23 @@ const Login = () => {
     try {
       setIsSubmitting(true);
       await signIn(values.email, values.password);
-      navigate(getDashboardRoute());
+      
+      // Redirect will happen via the useEffect above when isAuthenticated becomes true
+      console.log("Login successful, auth state will update and trigger redirect");
     } catch (error) {
       console.error("Login error:", error);
-    } finally {
       setIsSubmitting(false);
     }
   };
+
+  // If we're still checking authentication status, show loading
+  if (isLoading && !isSubmitting) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <p>Checking authentication...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">

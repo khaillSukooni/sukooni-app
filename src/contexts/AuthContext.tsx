@@ -1,5 +1,5 @@
 
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect, useContext, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthUser, UserProfile } from "@/lib/types/auth";
 import { getUserProfile } from "@/lib/utils/auth";
@@ -16,7 +16,8 @@ interface AuthContextType {
   isTherapist: boolean;
   isAdmin: boolean;
   getDashboardRoute: () => string;
-  isAuthenticated: boolean; // New flag to track authentication state
+  isAuthenticated: boolean;
+  refreshUserData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,6 +27,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Fetch user profile when we have a user ID
+  const fetchUserProfile = useCallback(async (userId: string) => {
+    try {
+      const userProfile = await getUserProfile(userId);
+      console.log("Fetched user profile:", userProfile ? "Profile found" : "No profile");
+      setProfile(userProfile);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setProfile(null);
+    }
+  }, []);
+
+  // Refresh user session and profile data
+  const refreshUserData = useCallback(async () => {
+    console.log("Refreshing user data...");
+    setIsLoading(true);
+    
+    try {
+      const { data } = await supabase.auth.getSession();
+      const currentUser = data.session?.user ?? null;
+      
+      console.log("Session refresh result:", currentUser ? "Session found" : "No session");
+      
+      setUser(currentUser);
+      setIsAuthenticated(!!currentUser);
+
+      if (currentUser?.id) {
+        await fetchUserProfile(currentUser.id);
+      } else {
+        setProfile(null);
+      }
+    } catch (error) {
+      console.error("Error refreshing user data:", error);
+      setUser(null);
+      setProfile(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchUserProfile]);
 
   // Get initial session + profile on mount
   useEffect(() => {
@@ -44,8 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(!!currentUser);
 
         if (currentUser?.id) {
-          const userProfile = await getUserProfile(currentUser.id);
-          setProfile(userProfile);
+          await fetchUserProfile(currentUser.id);
         } else {
           setProfile(null);
         }
@@ -70,8 +111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAuthenticated(!!currentUser);
 
       if (currentUser?.id) {
-        const userProfile = await getUserProfile(currentUser.id);
-        setProfile(userProfile);
+        await fetchUserProfile(currentUser.id);
       } else {
         setProfile(null);
       }
@@ -82,7 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, []);
+  }, [fetchUserProfile]);
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
@@ -117,10 +157,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const currentUser = data?.user;
       if (currentUser?.id) {
+        // Immediately update auth state
         setUser(currentUser);
         setIsAuthenticated(true);
-        const userProfile = await getUserProfile(currentUser.id);
-        setProfile(userProfile);
+        
+        // Fetch user profile
+        await fetchUserProfile(currentUser.id);
       }
 
       toast.success("Logged in successfully!");
@@ -172,6 +214,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAdmin,
         getDashboardRoute,
         isAuthenticated,
+        refreshUserData,
       }}
     >
       {children}
