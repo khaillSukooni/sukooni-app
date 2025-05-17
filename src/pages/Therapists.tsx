@@ -9,7 +9,7 @@ import { mockTherapists } from "@/lib/data/mockTherapists";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 
 const Therapists = () => {
   const [therapists, setTherapists] = useState<Therapist[]>(mockTherapists);
@@ -72,6 +72,11 @@ const Therapists = () => {
     setSearchQuery("");
   };
 
+  // Scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -92,15 +97,16 @@ const Therapists = () => {
                   placeholder="Search by name or condition..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pr-10"
+                  className="w-full pr-10 pl-10 bg-white shadow-sm border-primary/20 hover:border-primary/40 focus:border-primary/60 transition-colors"
                 />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary/60" />
               </div>
               
               <div className="flex items-center gap-3">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="gap-2">
-                      <SlidersHorizontal className="h-4 w-4" />
+                    <Button variant="outline" className="gap-2 bg-white shadow-sm border-primary/20 hover:bg-primary/5">
+                      <SlidersHorizontal className="h-4 w-4 text-primary" />
                       <span>Filters</span>
                     </Button>
                   </PopoverTrigger>

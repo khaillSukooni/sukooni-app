@@ -42,9 +42,11 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex gap-4 items-center">
-            <Avatar className="h-16 w-16 border">
-              <AvatarImage src={therapist.profileImage} alt={therapist.name} />
-              <AvatarFallback>{getInitials(therapist.name)}</AvatarFallback>
+            <Avatar className="h-16 w-16 border bg-primary/5">
+              <AvatarImage src="/placeholder.svg" alt={therapist.name} />
+              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-secondary/20 text-primary-foreground">
+                {getInitials(therapist.name)}
+              </AvatarFallback>
             </Avatar>
             <div>
               <CardTitle>{therapist.name}</CardTitle>
