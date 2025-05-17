@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Therapist } from "@/lib/types/therapist";
@@ -33,12 +32,12 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
     <Card className="overflow-hidden rounded-xl shadow-md h-full">
       <div className="relative h-full">
         <AspectRatio ratio={3 / 4} className="bg-gray-100">
-          {/* Gender-specific placeholder image */}
+          {/* Use the local image paths */}
           <div className="h-full w-full flex items-center justify-center">
             <img
               src={therapist.gender === "Female" 
-                ? "/lovable-uploads/a4adbbea-47b4-4681-b22e-3611f808aff8.png" 
-                : "/lovable-uploads/7dde54d9-0067-48be-b351-523fc9d3c6d9.png"}
+                ? "/femlae.jpg" 
+                : "/male.jpg"}
               alt={`${therapist.name} profile`}
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -53,7 +52,7 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
           {/* Therapist name */}
           <h3 className="font-bold text-lg">{therapist.name}</h3>
           
-          {/* Specializations with subtle separators - Fixed React Fragment warning by removing data-lov-id */}
+          {/* Specializations with subtle separators */}
           <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
             {therapist.specializations.map((spec, index) => (
               <React.Fragment key={spec}>
