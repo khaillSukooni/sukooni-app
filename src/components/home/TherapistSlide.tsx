@@ -3,7 +3,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Therapist } from "@/lib/types/therapist";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Circle, Languages, Clock } from "lucide-react";
+import { Circle, Languages, Clock, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 
@@ -31,22 +31,19 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
     return abbrevMap[lang] || lang.substring(0, 2).toUpperCase();
   });
 
-  // Determine background color based on gender for the fallback
-  const avatarBgColor = therapist.gender === "Female" 
-    ? "bg-purple-100" 
-    : "bg-blue-100";
-
-  // Get initials for the fallback avatar
-  const initials = therapist.name.split(' ').map(n => n[0]).join('');
+  // Determine background and text color based on gender
+  const avatarColors = therapist.gender === "Female" 
+    ? { bg: "bg-purple-100", text: "text-purple-500" }
+    : { bg: "bg-blue-100", text: "text-blue-500" };
 
   return (
     <Card className="overflow-hidden rounded-xl shadow-md h-full">
       <div className="relative h-full">
         <AspectRatio ratio={3 / 4} className="bg-muted">
-          {/* Gender-specific avatar placeholder */}
+          {/* Gender-specific avatar placeholder with UserRound icon */}
           <Avatar className="h-full w-full rounded-none">
-            <AvatarFallback className={`text-4xl rounded-none ${avatarBgColor}`}>
-              {initials}
+            <AvatarFallback className={`rounded-none flex items-center justify-center ${avatarColors.bg}`}>
+              <UserRound className={`w-1/3 h-1/3 ${avatarColors.text}`} />
             </AvatarFallback>
           </Avatar>
         </AspectRatio>
