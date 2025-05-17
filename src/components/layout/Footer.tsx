@@ -88,7 +88,7 @@ export default function Footer() {
             <p className="text-brand-gray-400 text-xs bg-brand-gray-100 px-2 py-0.5 rounded">
               {BUILD_VERSION !== 'dev' 
                 ? `COMMIT: ${BUILD_VERSION.substring(0, 7)}` 
-                : 'Local Development'} ({BUILD_DATE})
+                : 'DEVELOPMENT VERSION'} ({BUILD_DATE})
             </p>
           </div>
           <p className="text-brand-gray-500 text-sm mt-2 md:mt-0">
