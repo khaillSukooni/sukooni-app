@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/Logo";
-import { Menu, X, LogOut, LayoutDashboard, FileText, Shield, User } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, FileText, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -36,11 +36,17 @@ const scrollToSection = (id: string) => {
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, profile, signOut, getDashboardRoute, isAuthenticated } = useAuth();
+  const { user, profile, signOut, getDashboardRoute, isAuthenticated, isLoading } = useAuth();
   
+  // Add debug logging
   useEffect(() => {
-    console.log("Navbar auth state:", { isAuthenticated, hasUser: !!user, hasProfile: !!profile });
-  }, [isAuthenticated, user, profile]);
+    console.log("Navbar rendered with auth state:", { 
+      isAuthenticated, 
+      hasUser: !!user, 
+      hasProfile: !!profile,
+      isLoading
+    });
+  }, [isAuthenticated, user, profile, isLoading]);
   
   useEffect(() => {
     if (isOpen) {
@@ -107,6 +113,23 @@ export default function Navbar() {
     }
     return profile.email || "";
   };
+
+  // If still loading auth state, render a simplified navbar
+  if (isLoading) {
+    return (
+      <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-brand-gray-200">
+        <div className="container-tight py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Link to="/">
+                <Logo />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-brand-gray-200">

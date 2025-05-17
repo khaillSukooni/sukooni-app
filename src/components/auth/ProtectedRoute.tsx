@@ -23,6 +23,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const checkSession = async () => {
       try {
         console.log("Protected route: Checking session validity...");
+        setIsChecking(true);
+        
+        // Get current user from Supabase
         const { data } = await supabase.auth.getUser();
         const hasSession = !!data.user;
         
@@ -33,15 +36,27 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
           console.log("Protected route: Session exists but not in context, refreshing data");
           await refreshUserData();
         }
+        
+        // No session or refresh complete
+        setIsChecking(false);
       } catch (error) {
         console.error("Protected route: Error checking session:", error);
-      } finally {
         setIsChecking(false);
       }
     };
     
     checkSession();
   }, [location.pathname, isAuthenticated, refreshUserData]);
+  
+  console.log("Protected route state:", {
+    isAuthenticated,
+    isLoading,
+    isChecking,
+    path: location.pathname,
+    hasUser: !!user,
+    hasProfile: !!profile,
+    allowedRoles
+  });
 
   // If authentication is still loading or checking, show loading indicator
   if (isLoading || isChecking) {

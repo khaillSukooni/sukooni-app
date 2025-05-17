@@ -58,6 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await fetchUserProfile(currentUser.id);
       } else {
         setProfile(null);
+        setIsAuthenticated(false);
       }
     } catch (error) {
       console.error("Error refreshing user data:", error);
@@ -89,6 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await fetchUserProfile(currentUser.id);
         } else {
           setProfile(null);
+          setIsAuthenticated(false);
         }
       } catch (error) {
         console.error("Error getting initial session:", error);
@@ -106,7 +108,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, session ? "Session exists" : "No session");
       
+      if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setProfile(null);
+        setIsAuthenticated(false);
+        console.log("Auth state: User signed out, cleared auth state");
+        return;
+      }
+      
       const currentUser = session?.user ?? null;
+      
+      console.log("Auth state: Setting user to", currentUser ? "authenticated user" : "null");
       setUser(currentUser);
       setIsAuthenticated(!!currentUser);
 
@@ -166,11 +178,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Fetch user profile
         await fetchUserProfile(currentUser.id);
+        console.log("AuthContext: Profile fetched, authentication complete");
       }
 
       toast.success("Logged in successfully!");
     } catch (error: any) {
       console.error("AuthContext: Login error:", error);
+      // Ensure auth state is cleared on error
+      setUser(null);
+      setProfile(null);
+      setIsAuthenticated(false);
+      
       toast.error(error.message || "Invalid login credentials.");
       throw error;
     } finally {
@@ -203,6 +221,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isAdmin) return "/dashboard/admin";
     return "/dashboard";
   };
+
+  // Debug auth state
+  useEffect(() => {
+    console.log("Auth state updated:", { 
+      isAuthenticated, 
+      hasUser: !!user, 
+      hasProfile: !!profile,
+      isLoading
+    });
+  }, [isAuthenticated, user, profile, isLoading]);
 
   return (
     <AuthContext.Provider

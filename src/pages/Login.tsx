@@ -31,14 +31,16 @@ const Login = () => {
     const checkAuth = async () => {
       console.log("Login: Checking authentication on mount...");
       try {
+        setCheckingAuth(true);
         const { data } = await supabase.auth.getUser();
         const hasSession = !!data.user;
+        
         console.log("Login: Auth check complete, user exists:", hasSession);
         
         if (hasSession) {
           // Refresh user data to ensure we have the profile
           await refreshUserData();
-        } 
+        }
       } catch (error) {
         console.error("Login: Error checking authentication:", error);
       } finally {
