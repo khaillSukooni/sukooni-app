@@ -5,7 +5,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormValues, loginSchema } from "@/lib/validation/auth";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,33 +20,26 @@ import Logo from "@/components/ui/Logo";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, user, profile, getDashboardRoute } = useAuth();
+  const { signIn, user, profile, getDashboardRoute, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [authInitialized, setAuthInitialized] = useState(false);
 
-  // Check if user is already logged in
+  // Initial check to ensure auth is initialized first
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { data: sessionData } = await supabase.auth.getSession();
-        if (sessionData?.session?.user) {
-          console.log("Login: User already logged in, redirecting");
-          navigate(getDashboardRoute());
-        }
-      } catch (error) {
-        console.error("Error checking auth session:", error);
-      }
-    };
-    
-    checkAuth();
-  }, [navigate, getDashboardRoute]);
+    if (!isLoading) {
+      setAuthInitialized(true);
+    }
+  }, [isLoading]);
 
   // Redirect when user and profile are loaded
   useEffect(() => {
-    if (user && profile) {
+    if (authInitialized && user && profile) {
       console.log("Login: User and profile loaded, redirecting to dashboard");
-      navigate(getDashboardRoute());
+      const dashboardRoute = getDashboardRoute();
+      console.log("Redirecting to:", dashboardRoute);
+      navigate(dashboardRoute);
     }
-  }, [user, profile, navigate, getDashboardRoute]);
+  }, [user, profile, navigate, getDashboardRoute, authInitialized]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -69,6 +61,11 @@ const Login = () => {
       setIsSubmitting(false);
     }
   };
+
+  // Show loading state if auth is still initializing
+  if (isLoading) {
+    return <div className="flex min-h-screen items-center justify-center">Checking authentication status...</div>;
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">

@@ -26,7 +26,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // If authentication is still loading, show loading state
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return <div className="flex h-screen items-center justify-center">Checking authentication...</div>;
   }
 
   // If user is not logged in, redirect to login
@@ -53,7 +53,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   if (!hasAllowedRole) {
     // Redirect to appropriate dashboard if user doesn't have the right role
     console.log("Protected route: User doesn't have allowed role, redirecting to dashboard");
-    return <Navigate to={getDashboardRoute()} replace />;
+    const dashboardRoute = getDashboardRoute();
+    console.log("Redirecting to:", dashboardRoute);
+    return <Navigate to={dashboardRoute} replace />;
   }
 
   console.log("Protected route: Access granted");

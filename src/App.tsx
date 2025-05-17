@@ -29,14 +29,17 @@ const DashboardRedirect = () => {
   const { getDashboardRoute, user, isLoading } = useAuth();
   
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return <div className="flex h-screen items-center justify-center">Loading dashboard...</div>;
   }
   
   if (!user) {
+    console.log("DashboardRedirect: No user, redirecting to login");
     return <Navigate to="/login" replace />;
   }
   
-  return <Navigate to={getDashboardRoute()} replace />;
+  const route = getDashboardRoute();
+  console.log("DashboardRedirect: Redirecting to", route);
+  return <Navigate to={route} replace />;
 };
 
 // Define routes for future pages
@@ -45,7 +48,7 @@ const AppRoutes = () => {
   
   // Show a loading indicator while initial auth check is in progress
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Loading authentication...</div>;
+    return <div className="flex h-screen items-center justify-center">Loading authentication... </div>;
   }
   
   return (

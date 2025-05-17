@@ -1,10 +1,9 @@
 
-import React, { createContext, useState, useEffect, useContext } from "react";
+import React, { createContext, useState, useEffect, useContext, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthUser, UserProfile } from "@/lib/types/auth";
 import { getUserProfile } from "@/lib/utils/auth";
 import { toast } from "@/components/ui/sonner";
-import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -43,38 +42,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Initialize auth state on mount
   useEffect(() => {
-    const initAuth = async () => {
+    // First set up the auth state change listener
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      
+      if (currentUser?.id) {
+        try {
+          const userProfile = await getUserProfile(currentUser.id);
+          console.log("Profile updated from auth change event:", userProfile);
+          setProfile(userProfile);
+        } catch (profileError) {
+          console.error("Error fetching profile on auth change:", profileError);
+          setProfile(null);
+        }
+      } else {
+        setProfile(null);
+      }
+      
+      setIsLoading(false);
+    });
+    
+    // Then explicitly check the current session
+    const checkSession = async () => {
       try {
-        setIsLoading(true);
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        console.log("Current user from getUser:", currentUser);
         
-        // First set up the auth state change listener
-        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-          console.log("Auth state changed:", event);
-          const currentUser = session?.user ?? null;
+        if (currentUser) {
           setUser(currentUser);
-          
-          if (currentUser?.id) {
-            try {
-              const userProfile = await getUserProfile(currentUser.id);
-              console.log("Profile updated from auth change event:", userProfile);
-              setProfile(userProfile);
-            } catch (profileError) {
-              console.error("Error fetching profile on auth change:", profileError);
-              setProfile(null);
-            }
-          } else {
-            setProfile(null);
-          }
-          
-          setIsLoading(false);
-        });
-        
-        // Then explicitly check the current session
-        const { data: sessionData } = await supabase.auth.getSession();
-        const currentUser = sessionData.session?.user ?? null;
-        setUser(currentUser);
-        
-        if (currentUser?.id) {
           try {
             const userProfile = await getUserProfile(currentUser.id);
             console.log("Initial profile loaded:", userProfile);
@@ -84,21 +81,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setProfile(null);
           }
         } else {
+          console.log("No current user found");
+          setUser(null);
           setProfile(null);
         }
-        
-        setIsLoading(false);
-        
-        return () => {
-          authListener.subscription.unsubscribe();
-        };
       } catch (error) {
-        console.error("Error initializing auth:", error);
+        console.error("Error getting current user:", error);
+      } finally {
         setIsLoading(false);
       }
     };
     
-    initAuth();
+    checkSession();
+    
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
@@ -168,16 +166,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isTherapist = profile?.role === "therapist";
   const isAdmin = profile?.role === "admin";
 
-  const getDashboardRoute = () => {
-    if (!profile) return "/login";
+  const getDashboardRoute = useCallback(() => {
+    if (!profile?.role) return "/login";
     
-    if (profile.role === "client") return "/dashboard/client";
-    if (profile.role === "therapist") return "/dashboard/therapist";
-    if (profile.role === "admin") return "/dashboard/admin";
-    
-    // Default fallback in case of invalid or missing role
-    return "/login";
-  };
+    switch(profile.role) {
+      case "client": 
+        return "/dashboard/client";
+      case "therapist": 
+        return "/dashboard/therapist";
+      case "admin": 
+        return "/dashboard/admin";
+      default:
+        return "/login";
+    }
+  }, [profile?.role]);
 
   return (
     <AuthContext.Provider
