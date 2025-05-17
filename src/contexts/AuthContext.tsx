@@ -151,6 +151,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     try {
       setIsLoading(true);
+      console.log("AuthContext: Attempting to sign in with email and password...");
+      
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) throw error;
@@ -158,6 +160,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUser = data?.user;
       if (currentUser?.id) {
         // Immediately update auth state
+        console.log("AuthContext: Login successful, updating state...");
         setUser(currentUser);
         setIsAuthenticated(true);
         
@@ -167,6 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       toast.success("Logged in successfully!");
     } catch (error: any) {
+      console.error("AuthContext: Login error:", error);
       toast.error(error.message || "Invalid login credentials.");
       throw error;
     } finally {

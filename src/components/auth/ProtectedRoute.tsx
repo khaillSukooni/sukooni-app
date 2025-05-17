@@ -43,17 +43,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     checkSession();
   }, [location.pathname, isAuthenticated, refreshUserData]);
 
-  useEffect(() => {
-    console.log("Protected route check:", {
-      isAuthenticated,
-      isLoading,
-      isChecking,
-      path: location.pathname,
-      hasUser: !!user,
-      hasProfile: !!profile
-    });
-  }, [isAuthenticated, isLoading, user, profile, location.pathname, isChecking]);
-
   // If authentication is still loading or checking, show loading indicator
   if (isLoading || isChecking) {
     return <div className="flex h-screen items-center justify-center">Loading...</div>;

@@ -52,12 +52,12 @@ const Login = () => {
 
   // Redirect to dashboard if authenticated
   useEffect(() => {
-    if (isAuthenticated && !isLoading && !checkingAuth) {
+    if (isAuthenticated && !isLoading) {
       const redirectTo = location.state?.from || getDashboardRoute();
       console.log("Login: User is authenticated, redirecting to", redirectTo);
       navigate(redirectTo, { replace: true });
     }
-  }, [isAuthenticated, isLoading, checkingAuth, getDashboardRoute, navigate, location.state]);
+  }, [isAuthenticated, isLoading, getDashboardRoute, navigate, location.state]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -70,6 +70,7 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       setIsSubmitting(true);
+      console.log("Login: Attempting to sign in with email and password...");
       await signIn(values.email, values.password);
       
       // Redirect will happen via the useEffect above when isAuthenticated becomes true
@@ -89,10 +90,6 @@ const Login = () => {
       </div>
     );
   }
-
-  // If we're still globally checking authentication (in AuthContext) but we've finished our local check
-  // we'll show the form but disable submission
-  const isPending = isLoading && !checkingAuth;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -149,7 +146,7 @@ const Login = () => {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting || isPending}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? "Signing in..." : "Sign in"}
               </Button>
