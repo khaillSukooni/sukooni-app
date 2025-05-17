@@ -30,7 +30,7 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
     return abbrevMap[lang] || lang.substring(0, 2).toUpperCase();
   });
 
-  // Custom SVG silhouettes based on gender
+  // Professional SVG silhouettes based on gender
   const FemaleSilhouette = () => (
     <svg
       viewBox="0 0 200 300" 
@@ -39,17 +39,40 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
       className="w-full h-full"
       preserveAspectRatio="xMidYMid meet"
     >
+      {/* Head */}
+      <ellipse cx="100" cy="60" rx="40" ry="45" fill="#E8E8E8" />
+      
+      {/* Neck */}
+      <path d="M90 100V110 H110 V100 Z" fill="#E8E8E8" />
+      
+      {/* Shoulders and torso */}
       <path
-        d="M100 60C111 60 120 51 120 40C120 29 111 20 100 20C89 20 80 29 80 40C80 51 89 60 100 60Z"
-        fill="#888888"
+        d="M60 130C60 115 70 110 90 105H110C130 110 140 115 140 130V230C140 230 140 260 100 260C60 260 60 230 60 230V130Z"
+        fill="#AAAAAA"
       />
+      
+      {/* Collar and jacket details */}
       <path
-        d="M135 110C135 85 120 65 100 65C80 65 65 85 65 110L60 170C60 175 63 178 68 180L95 190V280H105V190L132 180C137 178 140 175 140 170L135 110Z"
-        fill="#888888"
+        d="M90 105V130H110V105"
+        stroke="#888888"
+        strokeWidth="2"
+        fill="none"
       />
+      
+      {/* Jacket lapels */}
       <path
-        d="M140 90C140 80 135 75 130 75H115C115 75 120 95 115 105C110 115 100 120 100 120C100 120 90 115 85 105C80 95 85 75 85 75H70C65 75 60 80 60 90C60 100 70 120 75 125C80 130 100 140 100 140C100 140 120 130 125 125C130 120 140 100 140 90Z"
-        fill="#888888"
+        d="M90 105L75 140M110 105L125 140"
+        stroke="#888888"
+        strokeWidth="1.5"
+        fill="none"
+      />
+      
+      {/* Shoulder detail */}
+      <path 
+        d="M70 125C75 115 85 110 90 105M130 125C125 115 115 110 110 105" 
+        stroke="#888888" 
+        strokeWidth="1" 
+        fill="none" 
       />
     </svg>
   );
@@ -62,17 +85,48 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
       className="w-full h-full"
       preserveAspectRatio="xMidYMid meet"
     >
+      {/* Head */}
+      <ellipse cx="100" cy="60" rx="40" ry="45" fill="#E8E8E8" />
+      
+      {/* Neck */}
+      <path d="M90 100V110 H110 V100 Z" fill="#E8E8E8" />
+      
+      {/* Shoulders and torso */}
       <path
-        d="M100 60C111 60 120 51 120 40C120 29 111 20 100 20C89 20 80 29 80 40C80 51 89 60 100 60Z"
-        fill="#888888"
+        d="M55 135C55 115 75 110 95 105H105C125 110 145 115 145 135V240C145 240 145 260 100 260C55 260 55 240 55 240V135Z"
+        fill="#AAAAAA"
       />
+      
+      {/* Shirt collar */}
       <path
-        d="M65 75C65 75 65 105 65 115C65 125 70 140 70 140L65 200H85V280H95V200H105V280H115V200H135L130 140C130 140 135 125 135 115C135 105 135 75 135 75H65Z"
-        fill="#888888"
+        d="M95 105V140H105V105"
+        stroke="#888888"
+        strokeWidth="1.5"
+        fill="none"
       />
+      
+      {/* Tie */}
       <path
-        d="M135 75C135 70 130 65 125 65H75C70 65 65 70 65 75C65 75 65 80 70 85H130C135 80 135 75 135 75Z"
-        fill="#888888"
+        d="M100 110V160M95 115L100 125L105 115M95 160H105"
+        stroke="#888888"
+        strokeWidth="1.5"
+        fill="none"
+      />
+      
+      {/* Suit jacket lapels */}
+      <path
+        d="M95 105L75 140M105 105L125 140"
+        stroke="#888888"
+        strokeWidth="1.5"
+        fill="none"
+      />
+      
+      {/* Shoulder detail */}
+      <path 
+        d="M75 120C80 115 90 110 95 105M125 120C120 115 110 110 105 105" 
+        stroke="#888888" 
+        strokeWidth="1" 
+        fill="none" 
       />
     </svg>
   );
