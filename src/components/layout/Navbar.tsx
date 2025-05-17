@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/Logo";
-import { Menu, X, LogOut, LayoutDashboard, FileText, Shield } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, FileText, Shield, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -35,7 +35,7 @@ const scrollToSection = (id: string) => {
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, getDashboardRoute } = useAuth();
   
   const isLoggedIn = !!user;
   
@@ -81,14 +81,6 @@ export default function Navbar() {
     }
   };
 
-  // Get user's dashboard route
-  const getDashboardRoute = () => {
-    if (profile?.role === "client") return "/dashboard/client";
-    if (profile?.role === "therapist") return "/dashboard/therapist";
-    if (profile?.role === "admin") return "/dashboard/admin";
-    return "/dashboard";
-  };
-
   // Common navigation links for both desktop and mobile views
   const navLinks = [
     { title: "Home", path: "/" },
@@ -98,6 +90,22 @@ export default function Navbar() {
     { title: "About Us", path: "/about" },
   ];
   
+  // Get full name display
+  const getFullName = () => {
+    if (!profile) return "User";
+    
+    const firstName = profile.first_name || "";
+    const lastName = profile.last_name || "";
+    
+    if (firstName && lastName) {
+      return `${firstName} ${lastName}`;
+    } else if (firstName) {
+      return firstName;
+    } else {
+      return "User";
+    }
+  };
+
   return (
     <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-brand-gray-200">
       <div className="container-tight py-4">
@@ -140,7 +148,7 @@ export default function Navbar() {
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm text-brand-gray-600">
-                        {profile?.first_name || ''} {profile?.last_name || ''}
+                        {getFullName()}
                       </span>
                     </div>
                   </Button>
@@ -148,10 +156,10 @@ export default function Navbar() {
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-3 py-2">
                     <p className="text-sm font-medium">
-                      {profile?.first_name} {profile?.last_name}
+                      {getFullName()}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {profile?.email}
+                      {profile?.email || ""}
                     </p>
                   </div>
                   <DropdownMenuSeparator />
@@ -254,8 +262,8 @@ export default function Navbar() {
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{profile?.first_name} {profile?.last_name}</p>
-                            <p className="text-sm text-brand-gray-600">{profile?.email}</p>
+                            <p className="font-medium">{getFullName()}</p>
+                            <p className="text-sm text-brand-gray-600">{profile?.email || ""}</p>
                           </div>
                         </div>
                         <div className="grid gap-3">
