@@ -33,13 +33,22 @@ const DashboardRedirect = () => {
 // These will be implemented in future iterations
 const AppRoutes = () => (
   <Routes>
+    {/* Public routes - no protection needed */}
     <Route path="/" element={<Index />} />
-    
-    {/* Auth routes */}
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
     <Route path="/forgot-password" element={<ForgotPassword />} />
     <Route path="/reset-password" element={<ResetPassword />} />
+    <Route path="/about" element={<NotFound />} />
+    <Route path="/services" element={<NotFound />} />
+    <Route path="/resources" element={<NotFound />} />
+    <Route path="/contact" element={<NotFound />} />
+    <Route path="/faq" element={<NotFound />} />
+    <Route path="/therapists" element={<Therapists />} />
+    <Route path="/therapists/:id" element={<NotFound />} />
+    <Route path="/organizations" element={<NotFound />} />
+    <Route path="/terms" element={<NotFound />} />
+    <Route path="/privacy" element={<NotFound />} />
     
     {/* Protected routes */}
     <Route element={<ProtectedRoute />}>
@@ -73,20 +82,6 @@ const AppRoutes = () => (
       <Route path="/admin/appointments" element={<NotFound />} />
       <Route path="/dashboard/admin" element={<NotFound />} />
     </Route>
-    
-    {/* Content pages - to be implemented */}
-    <Route path="/about" element={<NotFound />} />
-    <Route path="/services" element={<NotFound />} />
-    <Route path="/resources" element={<NotFound />} />
-    <Route path="/contact" element={<NotFound />} />
-    <Route path="/faq" element={<NotFound />} />
-    <Route path="/therapists" element={<Therapists />} />
-    <Route path="/therapists/:id" element={<NotFound />} />
-    <Route path="/organizations" element={<NotFound />} />
-    
-    {/* Legal pages - to be implemented */}
-    <Route path="/terms" element={<NotFound />} />
-    <Route path="/privacy" element={<NotFound />} />
     
     {/* Catch-all route */}
     <Route path="*" element={<NotFound />} />

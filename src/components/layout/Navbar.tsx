@@ -38,13 +38,14 @@ export default function Navbar() {
   const navigate = useNavigate();
   const { user, profile, signOut, getDashboardRoute, isAuthenticated, isLoading } = useAuth();
   
-  // Add debug logging
+  // Add debug logging to see what's happening with auth state
   useEffect(() => {
     console.log("Navbar rendered with auth state:", { 
       isAuthenticated, 
       hasUser: !!user, 
       hasProfile: !!profile,
-      isLoading
+      isLoading,
+      path: window.location.pathname
     });
   }, [isAuthenticated, user, profile, isLoading]);
   
