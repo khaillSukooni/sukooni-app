@@ -31,19 +31,22 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
     return abbrevMap[lang] || lang.substring(0, 2).toUpperCase();
   });
 
+  // Determine background color based on gender for the fallback
+  const avatarBgColor = therapist.gender === "Female" 
+    ? "bg-purple-100" 
+    : "bg-blue-100";
+
+  // Get initials for the fallback avatar
+  const initials = therapist.name.split(' ').map(n => n[0]).join('');
+
   return (
     <Card className="overflow-hidden rounded-xl shadow-md h-full">
       <div className="relative h-full">
         <AspectRatio ratio={3 / 4} className="bg-muted">
-          {/* Improved placeholder image */}
+          {/* Gender-specific avatar placeholder */}
           <Avatar className="h-full w-full rounded-none">
-            <AvatarImage
-              src="/lovable-uploads/577f526d-251f-474a-a9dd-810dd5c4da17.png"
-              alt={`Photo of ${therapist.name}`}
-              className="object-cover"
-            />
-            <AvatarFallback className="text-4xl rounded-none bg-brand-gray-100">
-              {therapist.name.split(' ').map(n => n[0]).join('')}
+            <AvatarFallback className={`text-4xl rounded-none ${avatarBgColor}`}>
+              {initials}
             </AvatarFallback>
           </Avatar>
         </AspectRatio>
@@ -71,7 +74,7 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
               <span>{languageAbbreviations.join(' | ')}</span>
             </div>
             
-            {/* Experience - moved to its own line and changed icon */}
+            {/* Experience - moved to its own line and using clock icon */}
             <div className="flex items-center gap-1.5">
               <Clock className="h-4 w-4 text-brand-blue" />
               <span>{therapist.yearsExperience}+ years experience</span>
