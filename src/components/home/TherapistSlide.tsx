@@ -37,10 +37,14 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
           <div className="h-full w-full flex items-center justify-center">
             <img
               src={therapist.gender === "Female" 
-                ? "/lovable-uploads/aea2c5e8-a11b-488a-a501-1e48cf73eb87.png" 
-                : "/lovable-uploads/6bbe8f7c-f119-40f0-a2f0-e82cf29d7757.png"}
+                ? "/lovable-uploads/a4adbbea-47b4-4681-b22e-3611f808aff8.png" 
+                : "/lovable-uploads/7dde54d9-0067-48be-b351-523fc9d3c6d9.png"}
               alt={`${therapist.name} profile`}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                // Fallback to a default image if the specified one fails to load
+                e.currentTarget.src = "https://via.placeholder.com/300x400?text=Therapist";
+              }}
             />
           </div>
         </AspectRatio>
@@ -49,7 +53,7 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
           {/* Therapist name */}
           <h3 className="font-bold text-lg">{therapist.name}</h3>
           
-          {/* Specializations with subtle separators */}
+          {/* Specializations with subtle separators - Fixed React Fragment warning by removing data-lov-id */}
           <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
             {therapist.specializations.map((spec, index) => (
               <React.Fragment key={spec}>
