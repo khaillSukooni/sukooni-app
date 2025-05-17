@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/Logo";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, FileText, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -81,6 +81,14 @@ export default function Navbar() {
     }
   };
 
+  // Get user's dashboard route
+  const getDashboardRoute = () => {
+    if (profile?.role === "client") return "/dashboard/client";
+    if (profile?.role === "therapist") return "/dashboard/therapist";
+    if (profile?.role === "admin") return "/dashboard/admin";
+    return "/dashboard";
+  };
+
   // Common navigation links for both desktop and mobile views
   const navLinks = [
     { title: "Home", path: "/" },
@@ -124,19 +132,21 @@ export default function Navbar() {
             {isLoggedIn ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none" asChild>
-                  <Button variant="ghost" className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100">
-                    <span className="text-sm text-brand-gray-600 mr-1">
-                      {profile?.first_name || 'User'}
-                    </span>
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-brand-blue text-white text-sm">
-                        {getInitials()}
-                      </AvatarFallback>
-                    </Avatar>
+                  <Button variant="ghost" className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-brand-blue text-white text-sm">
+                          {getInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm text-brand-gray-600">
+                        {profile?.first_name || ''} {profile?.last_name || ''}
+                      </span>
+                    </div>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-2">
+                  <div className="px-3 py-2">
                     <p className="text-sm font-medium">
                       {profile?.first_name} {profile?.last_name}
                     </p>
@@ -146,8 +156,9 @@ export default function Navbar() {
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/dashboard" className="cursor-pointer">
-                      Dashboard
+                    <Link to={getDashboardRoute()} className="cursor-pointer flex items-center">
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      My Dashboard
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -157,9 +168,15 @@ export default function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <div className="px-2 py-2 text-xs text-muted-foreground flex justify-center">
-                    <Link to="/terms" className="hover:underline">Terms & Conditions</Link>
+                    <Link to="/terms" className="hover:underline flex items-center">
+                      <FileText className="mr-1 h-3 w-3" />
+                      Terms
+                    </Link>
                     <span className="mx-1"> • </span>
-                    <Link to="/privacy" className="hover:underline">Privacy Policy</Link>
+                    <Link to="/privacy" className="hover:underline flex items-center">
+                      <Shield className="mr-1 h-3 w-3" />
+                      Privacy
+                    </Link>
                   </div>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -243,8 +260,9 @@ export default function Navbar() {
                         </div>
                         <div className="grid gap-3">
                           <Button className="w-full justify-start gap-2" asChild onClick={closeMobileMenu}>
-                            <Link to="/dashboard">
-                              Dashboard
+                            <Link to={getDashboardRoute()}>
+                              <LayoutDashboard className="h-4 w-4" />
+                              My Dashboard
                             </Link>
                           </Button>
                           <Button variant="outline" className="w-full justify-start gap-2 text-red-600" onClick={handleSignOut}>
@@ -253,9 +271,15 @@ export default function Navbar() {
                           </Button>
                           <Separator className="my-2" />
                           <div className="text-xs text-muted-foreground flex justify-center">
-                            <Link to="/terms" className="hover:underline" onClick={closeMobileMenu}>Terms & Conditions</Link>
+                            <Link to="/terms" className="hover:underline flex items-center" onClick={closeMobileMenu}>
+                              <FileText className="mr-1 h-3 w-3" />
+                              Terms
+                            </Link>
                             <span className="mx-1"> • </span>
-                            <Link to="/privacy" className="hover:underline" onClick={closeMobileMenu}>Privacy Policy</Link>
+                            <Link to="/privacy" className="hover:underline flex items-center" onClick={closeMobileMenu}>
+                              <Shield className="mr-1 h-3 w-3" />
+                              Privacy
+                            </Link>
                           </div>
                         </div>
                       </>
