@@ -21,11 +21,32 @@ import ClientAppointments from "./pages/client/ClientAppointments";
 import ClientProfile from "./pages/client/ClientProfile";
 import ClientSettings from "./pages/client/ClientSettings";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Helper component to redirect to the appropriate dashboard
 const DashboardRedirect = () => {
-  const { getDashboardRoute } = useAuth();
+  const { getDashboardRoute, authInitialized, isLoading } = useAuth();
+  
+  console.log("DashboardRedirect:", { authInitialized, isLoading });
+  
+  if (!authInitialized || isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading authentication...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return <Navigate to={getDashboardRoute()} replace />;
 };
 

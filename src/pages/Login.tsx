@@ -1,6 +1,6 @@
 
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormValues, loginSchema } from "@/lib/validation/auth";
@@ -20,8 +20,20 @@ import Logo from "@/components/ui/Logo";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, getDashboardRoute } = useAuth();
+  const location = useLocation();
+  const { signIn, getDashboardRoute, user, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Get the path to redirect to after login
+  const from = location.state?.from || getDashboardRoute();
+  
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (user && !isLoading) {
+      console.log("Login: User already logged in, redirecting to", from);
+      navigate(from, { replace: true });
+    }
+  }, [user, isLoading, navigate, from]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -35,13 +47,24 @@ const Login = () => {
     try {
       setIsSubmitting(true);
       await signIn(values.email, values.password);
-      navigate(getDashboardRoute());
+      console.log("Login successful, redirecting to", from);
+      navigate(from, { replace: true });
     } catch (error) {
       console.error("Login error:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // If already checking auth status, show minimal loading
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+        <p>Checking authentication...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
