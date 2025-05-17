@@ -30,7 +30,7 @@ const TherapistList: React.FC<TherapistListProps> = ({ therapists }) => {
           <p className="text-muted-foreground">Try adjusting your filters or search criteria to see more results.</p>
         </div>
       ) : (
-       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
   {therapists.map((therapist) => (
     <TherapistCard
       key={therapist.id}
