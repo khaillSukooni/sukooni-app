@@ -24,10 +24,12 @@ export const supabase = createClient<Database>(
 // Helper function to clear auth state
 export const clearAuthState = () => {
   localStorage.removeItem('supabase.auth.token');
+  localStorage.removeItem('sb-thtwvjuuonlqldnturvb-auth-token');
   localStorage.removeItem('supabase.auth.refreshToken');
+  
   // Clear any other auth-related localStorage items
   Object.keys(localStorage).forEach(key => {
-    if (key.startsWith('supabase.auth.')) {
+    if (key.startsWith('supabase.auth.') || key.includes('-auth-token')) {
       localStorage.removeItem(key);
     }
   });
