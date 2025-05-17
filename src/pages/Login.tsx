@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,20 +20,8 @@ import Logo from "@/components/ui/Logo";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, user, profile, getDashboardRoute, isLoading } = useAuth();
+  const { signIn, getDashboardRoute } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  console.log("Login page rendering:", { user, profile, isLoading });
-
-  // Redirect when user and profile are loaded
-  useEffect(() => {
-    if (user && profile) {
-      console.log("Login: User and profile loaded, redirecting to dashboard");
-      const dashboardRoute = getDashboardRoute();
-      console.log("Redirecting to:", dashboardRoute);
-      navigate(dashboardRoute);
-    }
-  }, [user, profile, navigate, getDashboardRoute]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -46,27 +34,15 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       setIsSubmitting(true);
-      console.log("Login: Attempting to sign in with:", values.email);
       await signIn(values.email, values.password);
-      // Don't navigate here, let the useEffect handle it when user and profile are set
+      // Redirect directly to role-specific dashboard
+      navigate(getDashboardRoute(), { replace: true });
     } catch (error) {
       console.error("Login error:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
-
-  // Show specific loading state when authentication is still initializing but we're not submitting a form
-  if (isLoading && !isSubmitting) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <Logo size="lg" className="mx-auto mb-4" />
-          <p>Checking authentication status...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
