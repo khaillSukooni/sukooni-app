@@ -4,7 +4,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar, Clock, User, Mail, UserCircle } from "lucide-react";
 import { format } from "date-fns";
 
 interface Appointment {
@@ -34,7 +35,7 @@ const ClientDashboard = () => {
             end_time, 
             status,
             therapist_id,
-            therapist:therapist_id(id)
+            therapist:therapist_id(first_name, last_name)
           `)
           .eq("client_id", profile?.id)
           .eq("status", "scheduled")
@@ -45,28 +46,8 @@ const ClientDashboard = () => {
 
         if (error) throw error;
         
-        // After getting the appointment, fetch the therapist's profile details separately
         if (data) {
-          const { data: therapistData, error: therapistError } = await supabase
-            .from("profiles")
-            .select("first_name, last_name")
-            .eq("id", data.therapist_id)
-            .single();
-            
-          if (therapistError) throw therapistError;
-          
-          const appointmentData: Appointment = {
-            id: data.id,
-            start_time: data.start_time,
-            end_time: data.end_time,
-            status: data.status,
-            therapist: {
-              first_name: therapistData?.first_name || '',
-              last_name: therapistData?.last_name || ''
-            }
-          };
-          
-          setNextAppointment(appointmentData);
+          setNextAppointment(data as unknown as Appointment);
         }
       } catch (error) {
         console.error("Error fetching next appointment:", error);
@@ -78,6 +59,8 @@ const ClientDashboard = () => {
 
     if (profile?.id) {
       fetchNextAppointment();
+    } else {
+      setLoading(false);
     }
   }, [profile?.id]);
 
@@ -103,6 +86,30 @@ const ClientDashboard = () => {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {/* Profile Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Your Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span>{profile?.first_name} {profile?.last_name}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span>{profile?.email}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <UserCircle className="h-4 w-4 text-muted-foreground" />
+                <span className="capitalize">{profile?.role}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Next Appointment Card */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Next Appointment</CardTitle>
@@ -136,7 +143,22 @@ const ClientDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Additional cards can be added here */}
+        {/* Quick Actions Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Quick Actions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Button className="w-full bg-brand-blue hover:bg-brand-blue/90 text-white">
+                Book an Appointment
+              </Button>
+              <Button className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800">
+                View Upcoming Sessions
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
