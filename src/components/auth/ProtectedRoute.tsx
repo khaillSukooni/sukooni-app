@@ -2,7 +2,8 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { UserRole } from "@/lib/types/auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
@@ -15,27 +16,46 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { user, profile, isLoading, isAuthenticated, getDashboardRoute, refreshUserData } = useAuth();
   const location = useLocation();
+  const [isChecking, setIsChecking] = useState(true);
 
-  // On first mount or route change, refresh user data if needed
+  // On first mount or route change, verify session is valid
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      console.log("Protected route: No authentication detected, refreshing user data");
-      refreshUserData();
-    }
-  }, [location.pathname, isAuthenticated, isLoading, refreshUserData]);
+    const checkSession = async () => {
+      try {
+        console.log("Protected route: Checking session validity...");
+        const { data } = await supabase.auth.getUser();
+        const hasSession = !!data.user;
+        
+        console.log("Protected route: Session check complete, user exists:", hasSession);
+        
+        if (hasSession && !isAuthenticated) {
+          // We have a session but context doesn't know it yet - refresh
+          console.log("Protected route: Session exists but not in context, refreshing data");
+          await refreshUserData();
+        }
+      } catch (error) {
+        console.error("Protected route: Error checking session:", error);
+      } finally {
+        setIsChecking(false);
+      }
+    };
+    
+    checkSession();
+  }, [location.pathname, isAuthenticated, refreshUserData]);
 
   useEffect(() => {
     console.log("Protected route check:", {
       isAuthenticated,
       isLoading,
+      isChecking,
       path: location.pathname,
       hasUser: !!user,
       hasProfile: !!profile
     });
-  }, [isAuthenticated, isLoading, user, profile, location.pathname]);
+  }, [isAuthenticated, isLoading, user, profile, location.pathname, isChecking]);
 
-  // If authentication is still loading, show loading indicator
-  if (isLoading) {
+  // If authentication is still loading or checking, show loading indicator
+  if (isLoading || isChecking) {
     return <div className="flex h-screen items-center justify-center">Loading...</div>;
   }
 

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormValues, loginSchema } from "@/lib/validation/auth";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,17 +22,42 @@ import Logo from "@/components/ui/Logo";
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, getDashboardRoute, isAuthenticated, isLoading } = useAuth();
+  const { signIn, getDashboardRoute, isAuthenticated, isLoading, refreshUserData } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
 
-  // Redirect to dashboard if already authenticated
+  // Check authentication on mount
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
+    const checkAuth = async () => {
+      console.log("Login: Checking authentication on mount...");
+      try {
+        const { data } = await supabase.auth.getUser();
+        const hasSession = !!data.user;
+        console.log("Login: Auth check complete, user exists:", hasSession);
+        
+        if (hasSession) {
+          // Refresh user data to ensure we have the profile
+          await refreshUserData();
+        } 
+      } catch (error) {
+        console.error("Login: Error checking authentication:", error);
+      } finally {
+        // Always stop showing the loading state after checking
+        setCheckingAuth(false);
+      }
+    };
+    
+    checkAuth();
+  }, [refreshUserData]);
+
+  // Redirect to dashboard if authenticated
+  useEffect(() => {
+    if (isAuthenticated && !isLoading && !checkingAuth) {
       const redirectTo = location.state?.from || getDashboardRoute();
-      console.log("Login: User is already authenticated, redirecting to", redirectTo);
+      console.log("Login: User is authenticated, redirecting to", redirectTo);
       navigate(redirectTo, { replace: true });
     }
-  }, [isAuthenticated, isLoading, getDashboardRoute, navigate, location.state]);
+  }, [isAuthenticated, isLoading, checkingAuth, getDashboardRoute, navigate, location.state]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -50,18 +76,23 @@ const Login = () => {
       console.log("Login successful, auth state will update and trigger redirect");
     } catch (error) {
       console.error("Login error:", error);
+    } finally {
       setIsSubmitting(false);
     }
   };
 
-  // If we're still checking authentication status, show loading
-  if (isLoading && !isSubmitting) {
+  // Show loading state only while initially checking auth
+  if (checkingAuth) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
         <p>Checking authentication...</p>
       </div>
     );
   }
+
+  // If we're still globally checking authentication (in AuthContext) but we've finished our local check
+  // we'll show the form but disable submission
+  const isPending = isLoading && !checkingAuth;
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -118,7 +149,7 @@ const Login = () => {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isPending}
               >
                 {isSubmitting ? "Signing in..." : "Sign in"}
               </Button>
