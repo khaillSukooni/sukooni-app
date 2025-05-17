@@ -1,11 +1,20 @@
+
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/Logo";
-import { Menu, X, User, LogOut } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 
 const NavLink = ({ to, children, onClick }: { to: string; children: React.ReactNode; onClick?: () => void }) => (
   <Link 
@@ -48,6 +57,38 @@ export default function Navbar() {
     scrollToSection('how-it-works');
     closeMobileMenu();
   };
+
+  const handleSignOut = () => {
+    signOut();
+    closeMobileMenu();
+  };
+  
+  // Get user initials for avatar
+  const getInitials = () => {
+    if (!profile) return "U";
+    
+    const firstName = profile.first_name || "";
+    const lastName = profile.last_name || "";
+    
+    if (firstName && lastName) {
+      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    } else if (firstName) {
+      return firstName.charAt(0).toUpperCase();
+    } else if (profile.email) {
+      return profile.email.charAt(0).toUpperCase();
+    } else {
+      return "U";
+    }
+  };
+
+  // Common navigation links for both desktop and mobile views
+  const navLinks = [
+    { title: "Home", path: "/" },
+    { title: "How It Works", path: "#how-it-works", isAnchorLink: true },
+    { title: "Our Therapists", path: "/therapists" },
+    { title: "Pricing", path: "/pricing" },
+    { title: "About Us", path: "/about" },
+  ];
   
   return (
     <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-brand-gray-200">
@@ -61,39 +102,67 @@ export default function Navbar() {
           
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-1">
-            <NavLink to="/">Home</NavLink>
-            <a 
-              href="#how-it-works" 
-              className="text-brand-gray-600 hover:text-brand-blue transition-colors px-3 py-2 rounded-md text-sm font-medium"
-              onClick={handleHowItWorksClick}
-            >
-              How It Works
-            </a>
-            <NavLink to="/therapists">Our Therapists</NavLink>
-            <NavLink to="/pricing">Pricing</NavLink>
-            <NavLink to="/about">About Us</NavLink>
-            {isLoggedIn && (
-              <NavLink to="/dashboard">Dashboard</NavLink>
+            {navLinks.map((link, index) => 
+              link.isAnchorLink ? (
+                <a 
+                  key={index}
+                  href={link.path} 
+                  className="text-brand-gray-600 hover:text-brand-blue transition-colors px-3 py-2 rounded-md text-sm font-medium"
+                  onClick={handleHowItWorksClick}
+                >
+                  {link.title}
+                </a>
+              ) : (
+                <NavLink key={index} to={link.path}>
+                  {link.title}
+                </NavLink>
+              )
             )}
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
             {isLoggedIn ? (
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-brand-gray-600">
-                  {profile?.first_name || 'User'}
-                </span>
-                <Button variant="outline" size="sm" className="flex items-center gap-2" asChild>
-                  <Link to="/profile">
-                    <User className="h-4 w-4" />
-                    Profile
-                  </Link>
-                </Button>
-                <Button variant="outline" size="sm" className="flex items-center gap-2" onClick={signOut}>
-                  <LogOut className="h-4 w-4" />
-                  Sign Out
-                </Button>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="focus:outline-none" asChild>
+                  <Button variant="ghost" className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100">
+                    <span className="text-sm text-brand-gray-600 mr-1">
+                      {profile?.first_name || 'User'}
+                    </span>
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-brand-blue text-white text-sm">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <div className="px-2 py-2">
+                    <p className="text-sm font-medium">
+                      {profile?.first_name} {profile?.last_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {profile?.email}
+                    </p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="cursor-pointer">
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="text-red-600 cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <div className="px-2 py-2 text-xs text-muted-foreground flex justify-center">
+                    <Link to="/terms" className="hover:underline">Terms & Conditions</Link>
+                    <span className="mx-1"> • </span>
+                    <Link to="/privacy" className="hover:underline">Privacy Policy</Link>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <>
                 <Button variant="outline" asChild>
@@ -134,25 +203,26 @@ export default function Navbar() {
                   
                   <div className="flex-1 overflow-auto px-6">
                     <div className="flex flex-col py-6 space-y-3">
-                      <Link to="/" className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium" onClick={closeMobileMenu}>
-                        Home
-                      </Link>
-                      <a href="#how-it-works" className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium" onClick={handleHowItWorksClick}>
-                        How It Works
-                      </a>
-                      <Link to="/therapists" className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium" onClick={closeMobileMenu}>
-                        Our Therapists
-                      </Link>
-                      <Link to="/pricing" className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium" onClick={closeMobileMenu}>
-                        Pricing
-                      </Link>
-                      <Link to="/about" className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium" onClick={closeMobileMenu}>
-                        About Us
-                      </Link>
-                      {isLoggedIn && (
-                        <Link to="/dashboard" className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium" onClick={closeMobileMenu}>
-                          Dashboard
-                        </Link>
+                      {navLinks.map((link, index) => 
+                        link.isAnchorLink ? (
+                          <a 
+                            key={index}
+                            href={link.path}
+                            className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium"
+                            onClick={handleHowItWorksClick}
+                          >
+                            {link.title}
+                          </a>
+                        ) : (
+                          <Link 
+                            key={index}
+                            to={link.path} 
+                            className="text-brand-gray-700 hover:text-brand-blue transition-colors px-3 py-3 rounded-md text-base font-medium"
+                            onClick={closeMobileMenu}
+                          >
+                            {link.title}
+                          </Link>
+                        )
                       )}
                     </div>
                   </div>
@@ -162,24 +232,31 @@ export default function Navbar() {
                       <>
                         <div className="flex items-center gap-3 mb-4">
                           <Avatar className="h-10 w-10">
-                            <AvatarFallback>{profile?.first_name?.[0] || 'U'}</AvatarFallback>
+                            <AvatarFallback className="bg-brand-blue text-white">
+                              {getInitials()}
+                            </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{profile?.first_name || 'User'}</p>
+                            <p className="font-medium">{profile?.first_name} {profile?.last_name}</p>
                             <p className="text-sm text-brand-gray-600">{profile?.email}</p>
                           </div>
                         </div>
                         <div className="grid gap-3">
-                          <Button variant="outline" className="w-full justify-start gap-2" asChild onClick={closeMobileMenu}>
-                            <Link to="/profile">
-                              <User className="h-4 w-4" />
-                              Profile
+                          <Button className="w-full justify-start gap-2" asChild onClick={closeMobileMenu}>
+                            <Link to="/dashboard">
+                              Dashboard
                             </Link>
                           </Button>
-                          <Button variant="outline" className="w-full justify-start gap-2" onClick={() => { signOut(); closeMobileMenu(); }}>
+                          <Button variant="outline" className="w-full justify-start gap-2 text-red-600" onClick={handleSignOut}>
                             <LogOut className="h-4 w-4" />
                             Sign Out
                           </Button>
+                          <Separator className="my-2" />
+                          <div className="text-xs text-muted-foreground flex justify-center">
+                            <Link to="/terms" className="hover:underline" onClick={closeMobileMenu}>Terms & Conditions</Link>
+                            <span className="mx-1"> • </span>
+                            <Link to="/privacy" className="hover:underline" onClick={closeMobileMenu}>Privacy Policy</Link>
+                          </div>
                         </div>
                       </>
                     ) : (
