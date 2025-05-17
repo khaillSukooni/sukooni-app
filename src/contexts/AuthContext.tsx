@@ -131,10 +131,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAdmin = profile?.role === "admin";
 
   const getDashboardRoute = () => {
+    // Check if profile exists and has a valid role
+    if (!profile) {
+      return "/login"; // Redirect to login if no profile
+    }
+    
+    // Return appropriate dashboard route based on role
     if (isClient) return "/dashboard/client";
     if (isTherapist) return "/dashboard/therapist";
     if (isAdmin) return "/dashboard/admin";
-    return "/dashboard";
+    
+    // Fallback to login if role is invalid/undefined
+    return "/login";
   };
 
   return (

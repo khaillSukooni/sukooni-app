@@ -33,8 +33,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const hasAllowedRole = profile && allowedRoles.includes(profile.role as UserRole);
   
   if (!hasAllowedRole) {
-    // Redirect to appropriate dashboard if user doesn't have the right role
-    return <Navigate to={getDashboardRoute()} replace />;
+    // Get appropriate dashboard route based on user's role
+    // This will return /login if the profile doesn't exist or has an invalid role
+    const dashboardRoute = getDashboardRoute();
+    return <Navigate to={dashboardRoute} replace />;
   }
 
   return <Outlet />;

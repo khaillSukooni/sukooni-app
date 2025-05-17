@@ -22,6 +22,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { signIn, getDashboardRoute } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -34,11 +35,17 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       setIsSubmitting(true);
+      setLoginError(null);
       await signIn(values.email, values.password);
-      // Redirect directly to role-specific dashboard
-      navigate(getDashboardRoute(), { replace: true });
+      
+      // Use a setTimeout to ensure profile has been loaded before redirecting
+      setTimeout(() => {
+        // Redirect directly to role-specific dashboard
+        navigate(getDashboardRoute(), { replace: true });
+      }, 100);
     } catch (error) {
       console.error("Login error:", error);
+      setLoginError("Invalid login credentials. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
