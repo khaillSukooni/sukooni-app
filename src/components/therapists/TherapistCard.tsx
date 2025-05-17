@@ -10,12 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { 
-  Collapsible, 
-  CollapsibleContent, 
-  CollapsibleTrigger 
-} from "@/components/ui/collapsible";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Languages, Clock, ChevronDown, ChevronUp, UserRound } from "lucide-react";
 import { Therapist } from "@/lib/types/therapist";
 
@@ -30,13 +25,6 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
   isExpanded, 
   onToggleExpand 
 }) => {
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(part => part[0])
-      .join('');
-  };
-
   return (
     <div className="relative h-full">
       <Card className="flex flex-col h-full transition-all duration-300 hover:shadow-md">
@@ -44,7 +32,6 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
           <div className="flex items-start justify-between">
             <div className="flex gap-4 items-center">
               <Avatar className="h-16 w-16 border bg-primary/5">
-                <AvatarImage src="/placeholder.svg" alt={therapist.name} />
                 <AvatarFallback className="bg-gradient-to-br from-primary/20 to-secondary/20 text-primary-foreground flex items-center justify-center">
                   <UserRound className="h-8 w-8" />
                 </AvatarFallback>

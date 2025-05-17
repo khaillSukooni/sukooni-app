@@ -8,10 +8,18 @@ interface TherapistListProps {
 }
 
 const TherapistList: React.FC<TherapistListProps> = ({ therapists }) => {
-  const [expandedTherapistId, setExpandedTherapistId] = useState<string | null>(null);
+  const [expandedTherapistIds, setExpandedTherapistIds] = useState<Set<string>>(new Set());
 
   const toggleExpanded = (id: string) => {
-    setExpandedTherapistId(prevId => prevId === id ? null : id);
+    setExpandedTherapistIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
   };
 
   return (
@@ -22,12 +30,12 @@ const TherapistList: React.FC<TherapistListProps> = ({ therapists }) => {
           <p className="text-muted-foreground">Try adjusting your filters or search criteria to see more results.</p>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {therapists.map((therapist) => (
-            <div key={therapist.id} className="w-full md:w-[calc(50%-12px)] flex-shrink-0">
+            <div key={therapist.id} className="flex-shrink-0">
               <TherapistCard 
                 therapist={therapist} 
-                isExpanded={expandedTherapistId === therapist.id}
+                isExpanded={expandedTherapistIds.has(therapist.id)}
                 onToggleExpand={() => toggleExpanded(therapist.id)}
               />
             </div>
