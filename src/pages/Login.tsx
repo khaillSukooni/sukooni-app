@@ -1,10 +1,11 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormValues, loginSchema } from "@/lib/validation/auth";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +21,33 @@ import Logo from "@/components/ui/Logo";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, getDashboardRoute } = useAuth();
+  const { signIn, user, profile, getDashboardRoute } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData?.session?.user) {
+          console.log("Login: User already logged in, redirecting");
+          navigate(getDashboardRoute());
+        }
+      } catch (error) {
+        console.error("Error checking auth session:", error);
+      }
+    };
+    
+    checkAuth();
+  }, [navigate, getDashboardRoute]);
+
+  // Redirect when user and profile are loaded
+  useEffect(() => {
+    if (user && profile) {
+      console.log("Login: User and profile loaded, redirecting to dashboard");
+      navigate(getDashboardRoute());
+    }
+  }, [user, profile, navigate, getDashboardRoute]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -34,8 +60,9 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       setIsSubmitting(true);
+      console.log("Login: Attempting to sign in");
       await signIn(values.email, values.password);
-      navigate(getDashboardRoute());
+      // Don't navigate here, let the useEffect handle it when user and profile are set
     } catch (error) {
       console.error("Login error:", error);
     } finally {

@@ -1,14 +1,22 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const ClientProfile = () => {
-  const { profile } = useAuth();
+  const { profile, refreshProfile, user } = useAuth();
+
+  // Refresh profile data on component mount
+  useEffect(() => {
+    if (user?.id) {
+      console.log("ClientProfile: refreshing profile");
+      refreshProfile();
+    }
+  }, [user?.id, refreshProfile]);
 
   const getInitials = () => {
-    if (!profile) return "U";
+    if (!profile) return "";
     
     const firstName = profile.first_name || "";
     const lastName = profile.last_name || "";
@@ -20,9 +28,13 @@ const ClientProfile = () => {
     } else if (profile.email) {
       return profile.email.charAt(0).toUpperCase();
     } else {
-      return "U";
+      return "";
     }
   };
+
+  if (!profile) {
+    return <div className="flex justify-center items-center p-8">Loading profile data...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -46,23 +58,23 @@ const ClientProfile = () => {
             <div className="space-y-3 text-center sm:text-left">
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Full Name</h3>
-                <p className="text-lg">{profile?.first_name} {profile?.last_name}</p>
+                <p className="text-lg">{profile.first_name || ""} {profile.last_name || ""}</p>
               </div>
 
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
-                <p className="text-lg">{profile?.email}</p>
+                <p className="text-lg">{profile.email || ""}</p>
               </div>
 
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Account Type</h3>
-                <p className="text-lg capitalize">{profile?.role}</p>
+                <p className="text-lg capitalize">{profile.role || ""}</p>
               </div>
 
               <div>
                 <h3 className="text-sm font-medium text-muted-foreground">Joined On</h3>
                 <p className="text-lg">
-                  {profile?.created_at ? new Date(profile.created_at).toLocaleDateString("en-US", { 
+                  {profile.created_at ? new Date(profile.created_at).toLocaleDateString("en-US", { 
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'

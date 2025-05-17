@@ -1,8 +1,7 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -36,18 +35,35 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-
 import Logo from "@/components/ui/Logo";
 
 const ClientDashboardLayout = () => {
-  const { user, profile, signOut, getDashboardRoute } = useAuth();
+  const { user, profile, signOut, getDashboardRoute, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Always fetch fresh profile data on component mount
+  useEffect(() => {
+    if (user?.id) {
+      console.log("ClientDashboardLayout: refreshing profile");
+      refreshProfile();
+    } else {
+      console.log("ClientDashboardLayout: no user found, redirecting");
+      navigate("/login");
+    }
+  }, [user?.id, refreshProfile, navigate]);
+
+  // Redirect if no profile is found after a short delay
+  useEffect(() => {
+    if (user && !profile) {
+      const timer = setTimeout(() => {
+        console.log("ClientDashboardLayout: no profile found after delay, redirecting");
+        navigate("/login");
+      }, 2000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [user, profile, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -55,7 +71,7 @@ const ClientDashboardLayout = () => {
   };
 
   const getInitials = () => {
-    if (!profile) return "U";
+    if (!profile) return "";
     
     const firstName = profile.first_name || "";
     const lastName = profile.last_name || "";
@@ -67,12 +83,12 @@ const ClientDashboardLayout = () => {
     } else if (profile.email) {
       return profile.email.charAt(0).toUpperCase();
     } else {
-      return "U";
+      return "";
     }
   };
 
   const getFullName = () => {
-    if (!profile) return "User";
+    if (!profile) return "";
     
     const firstName = profile.first_name || "";
     const lastName = profile.last_name || "";
@@ -81,10 +97,21 @@ const ClientDashboardLayout = () => {
       return `${firstName} ${lastName}`;
     } else if (firstName) {
       return firstName;
+    } else if (profile.email) {
+      return profile.email;
     } else {
-      return "User";
+      return "";
     }
   };
+
+  // If no user or profile, show loading
+  if (!user || !profile) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        Loading profile data...
+      </div>
+    );
+  }
 
   const navigationItems = [
     { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard/client" },
@@ -166,7 +193,7 @@ const ClientDashboardLayout = () => {
                     {getFullName()}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {profile?.email || ""}
+                    {profile.email || ""}
                   </p>
                 </div>
                 <DropdownMenuSeparator />
