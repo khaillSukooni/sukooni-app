@@ -87,7 +87,7 @@ export default function Footer() {
               © {new Date().getFullYear()} Sukooni. All rights reserved.
             </p>
             <p className="text-brand-gray-400 text-xs bg-brand-gray-100 px-2 py-0.5 rounded">
-              {BUILD_VERSION !== 'dev' ? `COMMIT: ${BUILD_VERSION}` : 'DEVELOPMENT VERSION'} ({BUILD_DATE})
+              COMMIT: {BUILD_VERSION === 'dev' ? 'DEV-'+Math.random().toString(36).substring(2, 8).toUpperCase() : BUILD_VERSION} ({BUILD_DATE})
             </p>
           </div>
           <p className="text-brand-gray-500 text-sm mt-2 md:mt-0">
