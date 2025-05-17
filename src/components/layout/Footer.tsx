@@ -14,7 +14,17 @@ const FooterHeading = ({ children }: { children: React.ReactNode }) => (
   <h3 className="font-semibold text-brand-gray-900 mb-4">{children}</h3>
 );
 
+// Build information - this would typically be injected at build time
+// For development, we're using a placeholder
+const BUILD_VERSION = import.meta.env.VITE_BUILD_VERSION || 'dev';
+const BUILD_DATE = import.meta.env.VITE_BUILD_DATE || new Date().toISOString().split('T')[0];
+
 export default function Footer() {
+  // Log version info to console on component mount
+  React.useEffect(() => {
+    console.log(`App version: ${BUILD_VERSION} (built: ${BUILD_DATE})`);
+  }, []);
+  
   return (
     <footer className="bg-white border-t border-brand-gray-200">
       <div className="container-tight py-12">
@@ -72,9 +82,14 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-brand-gray-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-brand-gray-500 text-sm">
-            © {new Date().getFullYear()} Sukooni. All rights reserved.
-          </p>
+          <div className="flex flex-col md:flex-row items-center gap-2">
+            <p className="text-brand-gray-500 text-sm">
+              © {new Date().getFullYear()} Sukooni. All rights reserved.
+            </p>
+            <p className="text-brand-gray-400 text-xs bg-brand-gray-100 px-2 py-0.5 rounded">
+              BUILD: {BUILD_VERSION.slice(0, 7)} ({BUILD_DATE})
+            </p>
+          </div>
           <p className="text-brand-gray-500 text-sm mt-2 md:mt-0">
             If you are in crisis, please call or text the 24/7 Suicide & Crisis Lifeline at +971 4 393 0009 anytime.
           </p>
