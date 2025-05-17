@@ -39,40 +39,66 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
       className="w-full h-full"
       preserveAspectRatio="xMidYMid meet"
     >
-      {/* Head */}
-      <ellipse cx="100" cy="60" rx="40" ry="45" fill="#E8E8E8" />
+      {/* Background shape */}
+      <rect width="200" height="300" fill="#F8F8F8" />
       
       {/* Neck */}
-      <path d="M90 100V110 H110 V100 Z" fill="#E8E8E8" />
+      <path d="M85 80V98 H115 V80 Z" fill="#E6E6E6" />
       
-      {/* Shoulders and torso */}
-      <path
-        d="M60 130C60 115 70 110 90 105H110C130 110 140 115 140 130V230C140 230 140 260 100 260C60 260 60 230 60 230V130Z"
-        fill="#AAAAAA"
-      />
-      
-      {/* Collar and jacket details */}
-      <path
-        d="M90 105V130H110V105"
-        stroke="#888888"
-        strokeWidth="2"
-        fill="none"
-      />
-      
-      {/* Jacket lapels */}
-      <path
-        d="M90 105L75 140M110 105L125 140"
-        stroke="#888888"
-        strokeWidth="1.5"
-        fill="none"
-      />
-      
-      {/* Shoulder detail */}
+      {/* Head */}
       <path 
-        d="M70 125C75 115 85 110 90 105M130 125C125 115 115 110 110 105" 
-        stroke="#888888" 
+        d="M100,25 
+        a40,40 0 0 1 0,80 
+        a40,40 0 0 1 0,-80" 
+        fill="#FFFFFF" 
+      />
+      
+      {/* Hair */}
+      <path 
+        d="M60,65 
+        C60,40 75,20 100,20 
+        C125,20 140,40 140,65 
+        C140,35 125,15 100,15 
+        C75,15 60,35 60,65" 
+        fill="#E0E0E0" 
+      />
+      
+      {/* Shoulders and Body */}
+      <path 
+        d="M70,100 
+        L60,130 
+        L60,280 
+        L140,280 
+        L140,130 
+        L130,100 
+        Z" 
+        fill="#E6E6E6" 
+      />
+      
+      {/* Suit/Dress */}
+      <path 
+        d="M70,100 
+        L70,150 
+        L85,130 
+        L100,150 
+        L115,130 
+        L130,150 
+        L130,100 
+        Z" 
+        fill="#D9D9D9" 
+      />
+      
+      {/* Collar */}
+      <path 
+        d="M85,80 
+        L85,110 
+        L100,120 
+        L115,110 
+        L115,80 
+        Z" 
+        fill="#FFFFFF" 
+        stroke="#E0E0E0" 
         strokeWidth="1" 
-        fill="none" 
       />
     </svg>
   );
@@ -85,48 +111,82 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
       className="w-full h-full"
       preserveAspectRatio="xMidYMid meet"
     >
-      {/* Head */}
-      <ellipse cx="100" cy="60" rx="40" ry="45" fill="#E8E8E8" />
+      {/* Background shape */}
+      <rect width="200" height="300" fill="#F8F8F8" />
       
       {/* Neck */}
-      <path d="M90 100V110 H110 V100 Z" fill="#E8E8E8" />
+      <path d="M85 80V98 H115 V80 Z" fill="#E6E6E6" />
       
-      {/* Shoulders and torso */}
-      <path
-        d="M55 135C55 115 75 110 95 105H105C125 110 145 115 145 135V240C145 240 145 260 100 260C55 260 55 240 55 240V135Z"
-        fill="#AAAAAA"
+      {/* Head */}
+      <path 
+        d="M100,25 
+        a40,40 0 0 1 0,80 
+        a40,40 0 0 1 0,-80" 
+        fill="#FFFFFF" 
       />
       
-      {/* Shirt collar */}
-      <path
-        d="M95 105V140H105V105"
-        stroke="#888888"
-        strokeWidth="1.5"
-        fill="none"
+      {/* Hair */}
+      <path 
+        d="M60,50
+        C60,30 75,15 100,15
+        C125,15 140,30 140,50
+        L140,60
+        C140,35 130,25 100,25
+        C70,25 60,35 60,60
+        Z" 
+        fill="#E0E0E0" 
+      />
+      
+      {/* Shoulders and Body - Wider for male */}
+      <path 
+        d="M65,100 
+        L50,130 
+        L50,280 
+        L150,280 
+        L150,130 
+        L135,100 
+        Z" 
+        fill="#E6E6E6" 
+      />
+      
+      {/* Suit Jacket */}
+      <path 
+        d="M65,100 
+        L65,170 
+        L100,165  
+        L135,170 
+        L135,100 
+        Z" 
+        fill="#D9D9D9" 
+      />
+      
+      {/* Shirt and Tie */}
+      <path 
+        d="M85,80 
+        L85,150 
+        L100,155 
+        L115,150 
+        L115,80 
+        Z" 
+        fill="#FFFFFF" 
+        stroke="#E0E0E0" 
+        strokeWidth="1" 
       />
       
       {/* Tie */}
-      <path
-        d="M100 110V160M95 115L100 125L105 115M95 160H105"
-        stroke="#888888"
-        strokeWidth="1.5"
-        fill="none"
-      />
-      
-      {/* Suit jacket lapels */}
-      <path
-        d="M95 105L75 140M105 105L125 140"
-        stroke="#888888"
-        strokeWidth="1.5"
-        fill="none"
-      />
-      
-      {/* Shoulder detail */}
       <path 
-        d="M75 120C80 115 90 110 95 105M125 120C120 115 110 110 105 105" 
-        stroke="#888888" 
-        strokeWidth="1" 
-        fill="none" 
+        d="M95,100
+        L100,130
+        L105,100
+        Z"
+        fill="#D0D0D0"
+      />
+      <path
+        d="M97,130
+        L100,155
+        L103,130
+        Z"
+        fill="#D0D0D0"
       />
     </svg>
   );
