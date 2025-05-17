@@ -23,12 +23,6 @@ import ClientSettings from "./pages/client/ClientSettings";
 
 const queryClient = new QueryClient();
 
-// Helper component to redirect to the appropriate dashboard
-const DashboardRedirect = () => {
-  const { getDashboardRoute } = useAuth();
-  return <Navigate to={getDashboardRoute()} replace />;
-};
-
 // Define routes for future pages
 // These will be implemented in future iterations
 const AppRoutes = () => (
@@ -43,8 +37,6 @@ const AppRoutes = () => (
     
     {/* Protected routes */}
     <Route element={<ProtectedRoute />}>
-      {/* Dashboard redirect */}
-      <Route path="/dashboard" element={<DashboardRedirect />} />
       <Route path="/profile" element={<NotFound />} />
     </Route>
 

@@ -35,7 +35,8 @@ const Login = () => {
     try {
       setIsSubmitting(true);
       await signIn(values.email, values.password);
-      navigate(getDashboardRoute());
+      // Redirect directly to role-specific dashboard
+      navigate(getDashboardRoute(), { replace: true });
     } catch (error) {
       console.error("Login error:", error);
     } finally {
