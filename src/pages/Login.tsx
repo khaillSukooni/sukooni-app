@@ -18,20 +18,32 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Logo from "@/components/ui/Logo";
+import { Loader2 } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, isAuthenticated, isLoading } = useAuth();
+  const { signIn, isAuthenticated, isLoading, isProfileLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Redirect to dashboard or previous page if already authenticated
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
+    if (isAuthenticated && !isLoading && !isProfileLoading) {
       const redirectPath = location.state?.from || "/dashboard";
+      console.log(`Login: Redirecting to ${redirectPath}`);
       navigate(redirectPath, { replace: true });
     }
-  }, [isAuthenticated, isLoading, navigate, location.state]);
+  }, [isAuthenticated, isLoading, isProfileLoading, navigate, location.state]);
+
+  // Log the auth state for debugging
+  useEffect(() => {
+    console.log("Login page auth state:", {
+      isAuthenticated,
+      isLoading,
+      isProfileLoading,
+      redirectPath: location.state?.from || "/dashboard"
+    });
+  }, [isAuthenticated, isLoading, isProfileLoading, location.state]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -46,6 +58,7 @@ const Login = () => {
       setIsSubmitting(true);
       await signIn(values.email, values.password);
       // Redirect handled by useEffect
+      toast.success("Login successful! Redirecting to dashboard...");
     } catch (error) {
       console.error("Login error:", error);
       // Error toast is already handled in the signIn function
@@ -55,8 +68,13 @@ const Login = () => {
   };
 
   // If already authenticated and no redirect, show loading indicator
-  if (isAuthenticated && !isLoading) {
-    return null; // Will be redirected by useEffect
+  if (isAuthenticated && (!isLoading && !isSubmitting)) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="mt-2 text-muted-foreground">Redirecting to dashboard...</p>
+      </div>
+    );
   }
 
   return (
@@ -114,9 +132,14 @@ const Login = () => {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting || isLoading}
+                disabled={isSubmitting || isLoading || isProfileLoading}
               >
-                {isSubmitting ? "Signing in..." : "Sign in"}
+                {isSubmitting || isLoading || isProfileLoading ? (
+                  <span className="flex items-center">
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {isSubmitting ? "Signing in..." : "Loading..."}
+                  </span>
+                ) : "Sign in"}
               </Button>
             </form>
           </Form>
@@ -131,6 +154,3 @@ const Login = () => {
       </div>
     </div>
   );
-};
-
-export default Login;

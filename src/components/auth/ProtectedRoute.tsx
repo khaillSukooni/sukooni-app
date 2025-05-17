@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { UserRole } from "@/lib/types/auth";
 import { Loader2 } from "lucide-react";
+import { useEffect } from "react";
 
 interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
@@ -15,15 +16,35 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   redirectTo = "/login",
   children,
 }) => {
-  const { user, profile, isLoading, isAuthenticated, getDashboardRoute } = useAuth();
+  const { user, profile, isLoading, isAuthenticated, getDashboardRoute, isProfileLoading, refreshUserData } = useAuth();
   const location = useLocation();
 
-  // Show loading indicator only while still checking authentication
-  if (isLoading) {
+  // Attempt to refresh user data if authenticated but no profile
+  useEffect(() => {
+    if (isAuthenticated && user && !profile && !isProfileLoading) {
+      console.log("Protected route: User authenticated but no profile. Refreshing user data...");
+      refreshUserData();
+    }
+  }, [isAuthenticated, user, profile, isProfileLoading, refreshUserData]);
+
+  console.log("Protected route state:", {
+    isAuthenticated,
+    isLoading,
+    isProfileLoading,
+    hasUser: !!user,
+    hasProfile: !!profile,
+    allowedRoles,
+    currentPath: location.pathname
+  });
+
+  // Show loading indicator while checking authentication or fetching profile
+  if (isLoading || (isAuthenticated && isProfileLoading)) {
     return (
       <div className="flex h-screen flex-col items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="mt-2 text-muted-foreground">Verifying access...</p>
+        <p className="mt-2 text-muted-foreground">
+          {isProfileLoading ? "Loading profile data..." : "Verifying access..."}
+        </p>
       </div>
     );
   }
@@ -38,9 +59,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return children ? <>{children}</> : <Outlet />;
   }
   
-  // If we have a user but no profile yet, redirect to dashboard
+  // If we have a user but no profile yet, wait for profile or redirect to dashboard
   if (user && !profile) {
-    return <Navigate to={getDashboardRoute()} replace />;
+    console.log("User authenticated but profile not loaded yet. Redirecting to dashboard.");
+    return <Navigate to="/dashboard" replace />;
   }
 
   // Check if user has an allowed role
@@ -48,6 +70,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   
   if (!hasAllowedRole) {
     // Redirect to appropriate dashboard if user doesn't have the right role
+    console.log("User doesn't have required role. Redirecting to appropriate dashboard.");
     return <Navigate to={getDashboardRoute()} replace />;
   }
 

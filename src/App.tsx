@@ -21,6 +21,7 @@ import ClientAppointments from "./pages/client/ClientAppointments";
 import ClientProfile from "./pages/client/ClientProfile";
 import ClientSettings from "./pages/client/ClientSettings";
 import AuthGuard from "./components/auth/AuthGuard";
+import DashboardRedirect from "./components/auth/DashboardRedirect";
 
 const queryClient = new QueryClient();
 
@@ -49,8 +50,8 @@ const App = () => (
             <Route path="/terms" element={<NotFound />} />
             <Route path="/privacy" element={<NotFound />} />
             
-            {/* Dashboard redirect route with auth guard */}
-            <Route path="/dashboard" element={<AuthGuard><Navigate to="/dashboard/client" replace /></AuthGuard>} />
+            {/* Dashboard redirect route with auth guard - this is a special component that handles profile loading */}
+            <Route path="/dashboard" element={<AuthGuard><DashboardRedirect /></AuthGuard>} />
             <Route path="/profile" element={<AuthGuard><NotFound /></AuthGuard>} />
 
             {/* Client-specific routes */}
@@ -72,34 +73,9 @@ const App = () => (
                 <NotFound />
               </ProtectedRoute>
             } />
-            <Route path="/schedule" element={
-              <ProtectedRoute allowedRoles={["therapist"]}>
-                <NotFound />
-              </ProtectedRoute>
-            } />
-            <Route path="/clients" element={
-              <ProtectedRoute allowedRoles={["therapist"]}>
-                <NotFound />
-              </ProtectedRoute>
-            } />
-
+            
             {/* Admin-specific routes */}
             <Route path="/dashboard/admin" element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <NotFound />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/therapists" element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <NotFound />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/clients" element={
-              <ProtectedRoute allowedRoles={["admin"]}>
-                <NotFound />
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/appointments" element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <NotFound />
               </ProtectedRoute>

@@ -20,6 +20,7 @@ interface AuthContextType {
   getDashboardRoute: () => string;
   isAuthenticated: boolean;
   refreshUserData: () => Promise<void>;
+  isProfileLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,11 +31,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
 
   // Fetch user profile when we have a user ID
   const fetchUserProfile = useCallback(async (userId: string) => {
     try {
       console.log("Fetching user profile for ID:", userId);
+      setIsProfileLoading(true);
       const userProfile = await getUserProfile(userId);
       console.log("Fetched user profile:", userProfile ? "Profile found" : "No profile");
       
@@ -47,6 +50,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error("Error fetching user profile:", error);
       setProfile(null);
       return null;
+    } finally {
+      setIsProfileLoading(false);
     }
   }, []);
 
@@ -86,7 +91,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     // Set up auth state change listener
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, newSession) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log("Auth state changed:", event, newSession ? "Session exists" : "No session");
       
       const currentUser = newSession?.user ?? null;
@@ -98,32 +103,56 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       // If we have a user, fetch their profile asynchronously
       if (currentUser?.id) {
-        // Use setTimeout to prevent potential deadlock in Supabase auth listener
-        setTimeout(() => {
-          fetchUserProfile(currentUser.id).catch(console.error);
-        }, 0);
+        try {
+          setIsProfileLoading(true);
+          const userProfile = await getUserProfile(currentUser.id);
+          console.log("Profile after auth change:", userProfile ? "Profile found" : "No profile");
+          setProfile(userProfile);
+        } catch (error) {
+          console.error("Error fetching profile after auth change:", error);
+          setProfile(null);
+        } finally {
+          setIsProfileLoading(false);
+          setIsLoading(false);
+        }
       } else {
         setProfile(null);
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     });
     
     // Check initial session
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
-      // Update session state
-      const currentUser = initialSession?.user ?? null;
-      
-      setSession(initialSession);
-      setUser(currentUser);
-      setIsAuthenticated(!!currentUser);
-      
-      if (currentUser?.id) {
-        fetchUserProfile(currentUser.id).catch(console.error);
+    const checkInitialSession = async () => {
+      try {
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        
+        // Update session state
+        const currentUser = initialSession?.user ?? null;
+        
+        setSession(initialSession);
+        setUser(currentUser);
+        setIsAuthenticated(!!currentUser);
+        
+        if (currentUser?.id) {
+          try {
+            setIsProfileLoading(true);
+            const userProfile = await getUserProfile(currentUser.id);
+            setProfile(userProfile);
+          } catch (error) {
+            console.error("Error fetching initial profile:", error);
+            setProfile(null);
+          } finally {
+            setIsProfileLoading(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking initial session:", error);
+      } finally {
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
-    });
+    };
+    
+    checkInitialSession();
     
     // Clean up subscription on unmount
     return () => {
@@ -202,12 +231,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isTherapist = profile?.role === "therapist";
   const isAdmin = profile?.role === "admin";
 
-  const getDashboardRoute = () => {
+  const getDashboardRoute = useCallback(() => {
     if (isClient) return "/dashboard/client";
     if (isTherapist) return "/dashboard/therapist";
     if (isAdmin) return "/dashboard/admin";
-    return "/dashboard";
-  };
+    // If authenticated but role not determined yet, default to client dashboard
+    return isAuthenticated ? "/dashboard/client" : "/dashboard";
+  }, [isClient, isTherapist, isAdmin, isAuthenticated]);
 
   return (
     <AuthContext.Provider
@@ -225,6 +255,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         getDashboardRoute,
         isAuthenticated,
         refreshUserData,
+        isProfileLoading,
       }}
     >
       {children}
