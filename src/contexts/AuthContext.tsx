@@ -1,5 +1,4 @@
-
-import React, { createContext, useState, useEffect, useContext, useCallback } from "react";
+import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthUser, UserProfile } from "@/lib/types/auth";
 import { getUserProfile } from "@/lib/utils/auth";
@@ -9,7 +8,6 @@ interface AuthContextType {
   user: AuthUser | null;
   profile: UserProfile | null;
   isLoading: boolean;
-  authInitialized: boolean;
   signUp: (email: string, password: string, firstName: string, lastName: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
@@ -25,64 +23,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [authInitialized, setAuthInitialized] = useState(false);
 
-  const fetchUserProfile = useCallback(async (userId: string) => {
-    try {
-      const userProfile = await getUserProfile(userId);
-      setProfile(userProfile);
-      console.log("Profile fetched:", userProfile);
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-    }
-  }, []);
-
-  // Initialize auth state and set up listeners
+  // 1️⃣ Get initial session + profile on mount
   useEffect(() => {
-    console.log("AuthContext: Initializing auth state");
-    setIsLoading(true);
-    
-    // Set up auth state change listener
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state change:", event, session?.user?.id);
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-
-      if (currentUser?.id) {
-        await fetchUserProfile(currentUser.id);
-      } else {
-        setProfile(null);
-      }
-      
-      setIsLoading(false);
-    });
-
-    // Get initial session
-    const initializeAuth = async () => {
+    const getInitialSession = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
-        console.log("Initial session:", session?.user?.id);
-        
-        const currentUser = session?.user ?? null;
+        const { data } = await supabase.auth.getSession();
+        const currentUser = data.session?.user ?? null;
         setUser(currentUser);
 
         if (currentUser?.id) {
-          await fetchUserProfile(currentUser.id);
+          const userProfile = await getUserProfile(currentUser.id);
+          setProfile(userProfile);
         }
       } catch (error) {
         console.error("Error getting initial session:", error);
       } finally {
         setIsLoading(false);
-        setAuthInitialized(true);
       }
     };
 
-    initializeAuth();
+    getInitialSession();
+
+    // 2️⃣ Subscribe to auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+
+      if (currentUser?.id) {
+        const userProfile = await getUserProfile(currentUser.id);
+        setProfile(userProfile);
+      } else {
+        setProfile(null);
+      }
+
+      setIsLoading(false);
+    });
 
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, [fetchUserProfile]);
+  }, []);
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
@@ -118,7 +99,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUser = data?.user;
       if (currentUser?.id) {
         setUser(currentUser);
-        await fetchUserProfile(currentUser.id);
+        const userProfile = await getUserProfile(currentUser.id);
+        setProfile(userProfile);
       }
 
       toast.success("Logged in successfully!");
@@ -161,7 +143,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         user,
         profile,
         isLoading,
-        authInitialized,
         signUp,
         signIn,
         signOut,

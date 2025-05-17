@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import Dashboard from "./pages/Dashboard";
 import Therapists from "./pages/Therapists";
 
 import ClientDashboardLayout from "./components/layout/ClientDashboardLayout";
@@ -21,34 +22,7 @@ import ClientAppointments from "./pages/client/ClientAppointments";
 import ClientProfile from "./pages/client/ClientProfile";
 import ClientSettings from "./pages/client/ClientSettings";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-// Helper component to redirect to the appropriate dashboard
-const DashboardRedirect = () => {
-  const { getDashboardRoute, authInitialized, isLoading } = useAuth();
-  
-  console.log("DashboardRedirect:", { authInitialized, isLoading });
-  
-  if (!authInitialized || isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p>Loading authentication...</p>
-        </div>
-      </div>
-    );
-  }
-  
-  return <Navigate to={getDashboardRoute()} replace />;
-};
+const queryClient = new QueryClient();
 
 // Define routes for future pages
 // These will be implemented in future iterations
@@ -64,8 +38,7 @@ const AppRoutes = () => (
     
     {/* Protected routes */}
     <Route element={<ProtectedRoute />}>
-      {/* Dashboard redirect */}
-      <Route path="/dashboard" element={<DashboardRedirect />} />
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/profile" element={<NotFound />} />
     </Route>
 
@@ -76,15 +49,16 @@ const AppRoutes = () => (
         <Route path="appointments" element={<ClientAppointments />} />
         <Route path="profile" element={<ClientProfile />} />
         <Route path="settings" element={<ClientSettings />} />
-        <Route path="messages" element={<NotFound />} />
       </Route>
     </Route>
+
+    {/* Redirects to role-specific dashboards */}
+    <Route path="/dashboard" element={<DashboardRedirect />} />
 
     {/* Therapist-specific routes */}
     <Route element={<ProtectedRoute allowedRoles={["therapist"]} />}>
       <Route path="/schedule" element={<NotFound />} />
       <Route path="/clients" element={<NotFound />} />
-      <Route path="/dashboard/therapist" element={<NotFound />} />
     </Route>
 
     {/* Admin-specific routes */}
@@ -92,7 +66,6 @@ const AppRoutes = () => (
       <Route path="/admin/therapists" element={<NotFound />} />
       <Route path="/admin/clients" element={<NotFound />} />
       <Route path="/admin/appointments" element={<NotFound />} />
-      <Route path="/dashboard/admin" element={<NotFound />} />
     </Route>
     
     {/* Content pages - to be implemented */}
@@ -113,6 +86,12 @@ const AppRoutes = () => (
     <Route path="*" element={<NotFound />} />
   </Routes>
 );
+
+// Helper component to redirect to the appropriate dashboard
+const DashboardRedirect = () => {
+  const { getDashboardRoute } = useAuth();
+  return <Navigate to={getDashboardRoute()} replace />;
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
