@@ -22,14 +22,15 @@ const TherapistList: React.FC<TherapistListProps> = ({ therapists }) => {
           <p className="text-muted-foreground">Try adjusting your filters or search criteria to see more results.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 grid-auto-rows-auto">
           {therapists.map((therapist) => (
-            <TherapistCard 
-              key={therapist.id} 
-              therapist={therapist} 
-              isExpanded={expandedTherapistId === therapist.id}
-              onToggleExpand={() => toggleExpanded(therapist.id)}
-            />
+            <div key={therapist.id} className="h-full grid">
+              <TherapistCard 
+                therapist={therapist} 
+                isExpanded={expandedTherapistId === therapist.id}
+                onToggleExpand={() => toggleExpanded(therapist.id)}
+              />
+            </div>
           ))}
         </div>
       )}

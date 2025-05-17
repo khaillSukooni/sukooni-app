@@ -105,7 +105,10 @@ const Therapists = () => {
               <div className="flex items-center gap-3">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className="gap-2 bg-white shadow-sm border-primary/20 hover:bg-primary/5">
+                    <Button 
+                      variant="outline" 
+                      className="gap-2 bg-white shadow-sm border-primary/20 hover:bg-primary/5 hover:text-primary"
+                    >
                       <SlidersHorizontal className="h-4 w-4 text-primary" />
                       <span>Filters</span>
                     </Button>

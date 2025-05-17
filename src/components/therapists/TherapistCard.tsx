@@ -16,7 +16,7 @@ import {
   CollapsibleTrigger 
 } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Languages, Clock, ChevronDown, ChevronUp } from "lucide-react";
+import { Languages, Clock, ChevronDown, ChevronUp, UserRound } from "lucide-react";
 import { Therapist } from "@/lib/types/therapist";
 
 interface TherapistCardProps {
@@ -44,8 +44,8 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
           <div className="flex gap-4 items-center">
             <Avatar className="h-16 w-16 border bg-primary/5">
               <AvatarImage src="/placeholder.svg" alt={therapist.name} />
-              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-secondary/20 text-primary-foreground">
-                {getInitials(therapist.name)}
+              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-secondary/20 text-primary-foreground flex items-center justify-center">
+                <UserRound className="h-8 w-8" />
               </AvatarFallback>
             </Avatar>
             <div>
