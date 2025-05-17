@@ -22,24 +22,18 @@ const Login = () => {
   const navigate = useNavigate();
   const { signIn, user, profile, getDashboardRoute, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [authInitialized, setAuthInitialized] = useState(false);
 
-  // Initial check to ensure auth is initialized first
-  useEffect(() => {
-    if (!isLoading) {
-      setAuthInitialized(true);
-    }
-  }, [isLoading]);
+  console.log("Login page rendering:", { user, profile, isLoading });
 
   // Redirect when user and profile are loaded
   useEffect(() => {
-    if (authInitialized && user && profile) {
+    if (user && profile) {
       console.log("Login: User and profile loaded, redirecting to dashboard");
       const dashboardRoute = getDashboardRoute();
       console.log("Redirecting to:", dashboardRoute);
       navigate(dashboardRoute);
     }
-  }, [user, profile, navigate, getDashboardRoute, authInitialized]);
+  }, [user, profile, navigate, getDashboardRoute]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -52,7 +46,7 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       setIsSubmitting(true);
-      console.log("Login: Attempting to sign in");
+      console.log("Login: Attempting to sign in with:", values.email);
       await signIn(values.email, values.password);
       // Don't navigate here, let the useEffect handle it when user and profile are set
     } catch (error) {
@@ -62,9 +56,16 @@ const Login = () => {
     }
   };
 
-  // Show loading state if auth is still initializing
-  if (isLoading) {
-    return <div className="flex min-h-screen items-center justify-center">Checking authentication status...</div>;
+  // Show specific loading state when authentication is still initializing but we're not submitting a form
+  if (isLoading && !isSubmitting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <Logo size="lg" className="mx-auto mb-4" />
+          <p>Checking authentication status...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { UserRole } from "@/lib/types/auth";
+import Logo from "@/components/ui/Logo";
 
 interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
@@ -16,6 +17,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { user, profile, isLoading, getDashboardRoute, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
+  console.log("Protected route rendering:", {
+    userId: user?.id,
+    profileRole: profile?.role,
+    isLoading,
+    allowedRoles
+  });
+
   // Fetch fresh profile data on mount or when user changes
   useEffect(() => {
     if (user?.id) {
@@ -26,7 +34,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // If authentication is still loading, show loading state
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Checking authentication...</div>;
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <Logo size="lg" className="mb-4" />
+        <p>Checking authentication...</p>
+      </div>
+    );
   }
 
   // If user is not logged in, redirect to login
@@ -38,7 +51,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // If profile is not loaded yet, show loading
   if (user && !profile) {
     console.log("Protected route: User exists but no profile, showing loading");
-    return <div className="flex h-screen items-center justify-center">Loading profile data...</div>;
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <Logo size="lg" className="mb-4" />
+        <p>Loading profile data...</p>
+      </div>
+    );
   }
 
   // If allowedRoles is empty, allow any authenticated user

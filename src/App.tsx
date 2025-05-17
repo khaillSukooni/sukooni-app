@@ -28,8 +28,14 @@ const queryClient = new QueryClient();
 const DashboardRedirect = () => {
   const { getDashboardRoute, user, isLoading } = useAuth();
   
+  console.log("DashboardRedirect rendering:", { user, isLoading });
+  
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Loading dashboard...</div>;
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <p>Loading dashboard...</p>
+      </div>
+    );
   }
   
   if (!user) {
@@ -46,9 +52,15 @@ const DashboardRedirect = () => {
 const AppRoutes = () => {
   const { isLoading } = useAuth();
   
+  console.log("AppRoutes rendering, isLoading:", isLoading);
+  
   // Show a loading indicator while initial auth check is in progress
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Loading authentication... </div>;
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <p>Loading authentication...</p>
+      </div>
+    );
   }
   
   return (
@@ -113,18 +125,21 @@ const AppRoutes = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
+const App = () => {
+  console.log("App component rendering");
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
         <BrowserRouter>
-          <AppRoutes />
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <AppRoutes />
+          </AuthProvider>
         </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
