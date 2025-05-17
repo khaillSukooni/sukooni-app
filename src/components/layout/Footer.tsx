@@ -16,12 +16,23 @@ const FooterHeading = ({ children }: { children: React.ReactNode }) => (
 
 // Build information - this would typically be injected at build time
 const BUILD_VERSION = import.meta.env.VITE_GIT_COMMIT_HASH || 'dev';
-const BUILD_DATE = import.meta.env.VITE_BUILD_DATE || new Date().toISOString().split('T')[0];
+const BUILD_DATE = import.meta.env.VITE_BUILD_DATE || new Date().toISOString();
+const formattedDate = BUILD_DATE.includes('T') 
+  ? new Date(BUILD_DATE).toLocaleString('en-US', { 
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    })
+  : BUILD_DATE;
 
 export default function Footer() {
   // Log version info to console on component mount
   React.useEffect(() => {
-    console.log(`App version: ${BUILD_VERSION} (built: ${BUILD_DATE})`);
+    console.log(`App version: ${BUILD_VERSION} (built: ${formattedDate})`);
   }, []);
   
   return (
@@ -85,8 +96,8 @@ export default function Footer() {
             <p className="text-brand-gray-500 text-sm">
               © {new Date().getFullYear()} Sukooni. All rights reserved.
             </p>
-            <p className="text-brand-gray-400 text-xs bg-brand-gray-100 px-2 py-0.5 rounded">
-              COMMIT: {BUILD_VERSION.substring(0, 7)} ({BUILD_DATE})
+            <p className="text-brand-gray-400 text-xs bg-brand-gray-100 px-2 py-0.5 rounded font-mono">
+              COMMIT: {BUILD_VERSION.substring(0, 7)} ({formattedDate})
             </p>
           </div>
           <p className="text-brand-gray-500 text-sm mt-2 md:mt-0">
