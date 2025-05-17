@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthUser, UserProfile } from "@/lib/types/auth";
@@ -15,6 +16,7 @@ interface AuthContextType {
   isTherapist: boolean;
   isAdmin: boolean;
   getDashboardRoute: () => string;
+  isAuthenticated: boolean; // New flag to track authentication state
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -23,21 +25,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // 1️⃣ Get initial session + profile on mount
+  // Get initial session + profile on mount
   useEffect(() => {
     const getInitialSession = async () => {
       try {
+        console.log("Checking initial auth session...");
+        setIsLoading(true);
+        
+        // Get current session from Supabase
         const { data } = await supabase.auth.getSession();
         const currentUser = data.session?.user ?? null;
+        
+        console.log("Initial auth check result:", currentUser ? "User found" : "No user");
+        
         setUser(currentUser);
+        setIsAuthenticated(!!currentUser);
 
         if (currentUser?.id) {
           const userProfile = await getUserProfile(currentUser.id);
           setProfile(userProfile);
+        } else {
+          setProfile(null);
         }
       } catch (error) {
         console.error("Error getting initial session:", error);
+        setUser(null);
+        setProfile(null);
+        setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
       }
@@ -45,10 +61,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     getInitialSession();
 
-    // 2️⃣ Subscribe to auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    // Subscribe to auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, session ? "Session exists" : "No session");
+      
       const currentUser = session?.user ?? null;
       setUser(currentUser);
+      setIsAuthenticated(!!currentUser);
 
       if (currentUser?.id) {
         const userProfile = await getUserProfile(currentUser.id);
@@ -99,6 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const currentUser = data?.user;
       if (currentUser?.id) {
         setUser(currentUser);
+        setIsAuthenticated(true);
         const userProfile = await getUserProfile(currentUser.id);
         setProfile(userProfile);
       }
@@ -118,6 +138,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await supabase.auth.signOut();
       setUser(null);
       setProfile(null);
+      setIsAuthenticated(false);
       toast.success("Logged out successfully!");
     } catch (error) {
       console.error("Error signing out:", error);
@@ -150,6 +171,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isTherapist,
         isAdmin,
         getDashboardRoute,
+        isAuthenticated,
       }}
     >
       {children}

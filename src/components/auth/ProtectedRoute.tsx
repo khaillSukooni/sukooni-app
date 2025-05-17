@@ -1,7 +1,8 @@
 
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { UserRole } from "@/lib/types/auth";
+import { useEffect } from "react";
 
 interface ProtectedRouteProps {
   allowedRoles?: UserRole[];
@@ -12,16 +13,27 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   allowedRoles = [],
   redirectTo = "/login",
 }) => {
-  const { user, profile, isLoading, getDashboardRoute } = useAuth();
+  const { user, profile, isLoading, isAuthenticated, getDashboardRoute } = useAuth();
+  const location = useLocation();
 
-  // If authentication is still loading, show nothing
+  useEffect(() => {
+    console.log("Protected route check:", {
+      isAuthenticated,
+      isLoading,
+      path: location.pathname,
+      hasUser: !!user,
+      hasProfile: !!profile
+    });
+  }, [isAuthenticated, isLoading, user, profile, location.pathname]);
+
+  // If authentication is still loading, show loading indicator
   if (isLoading) {
     return <div className="flex h-screen items-center justify-center">Loading...</div>;
   }
 
-  // If user is not logged in, redirect to login
-  if (!user) {
-    return <Navigate to={redirectTo} replace />;
+  // If user is not logged in, redirect to login with current path as return URL
+  if (!isAuthenticated || !user) {
+    return <Navigate to={redirectTo} replace state={{ from: location.pathname }} />;
   }
 
   // If allowedRoles is empty, allow any authenticated user

@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,18 +36,30 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-
 import Logo from "@/components/ui/Logo";
 
 const ClientDashboardLayout = () => {
-  const { user, profile, signOut, getDashboardRoute } = useAuth();
+  const { user, profile, signOut, getDashboardRoute, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    // Verify authentication on component mount
+    const checkAuth = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!data.user) {
+        console.log("No authenticated user found in dashboard layout, redirecting to login");
+        navigate("/login");
+      }
+    };
+    
+    checkAuth();
+  }, [navigate]);
+
+  // If no authenticated user, show nothing
+  if (!isAuthenticated || !user) {
+    return null;
+  }
 
   const handleSignOut = async () => {
     await signOut();
@@ -55,7 +67,7 @@ const ClientDashboardLayout = () => {
   };
 
   const getInitials = () => {
-    if (!profile) return "U";
+    if (!profile) return "";
     
     const firstName = profile.first_name || "";
     const lastName = profile.last_name || "";
@@ -66,13 +78,12 @@ const ClientDashboardLayout = () => {
       return firstName.charAt(0).toUpperCase();
     } else if (profile.email) {
       return profile.email.charAt(0).toUpperCase();
-    } else {
-      return "U";
     }
+    return "";
   };
 
   const getFullName = () => {
-    if (!profile) return "User";
+    if (!profile) return "";
     
     const firstName = profile.first_name || "";
     const lastName = profile.last_name || "";
@@ -81,9 +92,8 @@ const ClientDashboardLayout = () => {
       return `${firstName} ${lastName}`;
     } else if (firstName) {
       return firstName;
-    } else {
-      return "User";
     }
+    return profile.email || "";
   };
 
   const navigationItems = [

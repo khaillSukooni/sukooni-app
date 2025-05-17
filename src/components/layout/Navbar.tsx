@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Logo from "@/components/ui/Logo";
 import { Menu, X, LogOut, LayoutDashboard, FileText, Shield, User } from "lucide-react";
@@ -35,9 +35,12 @@ const scrollToSection = (id: string) => {
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, profile, signOut, getDashboardRoute } = useAuth();
+  const navigate = useNavigate();
+  const { user, profile, signOut, getDashboardRoute, isAuthenticated } = useAuth();
   
-  const isLoggedIn = !!user;
+  useEffect(() => {
+    console.log("Navbar auth state:", { isAuthenticated, hasUser: !!user, hasProfile: !!profile });
+  }, [isAuthenticated, user, profile]);
   
   useEffect(() => {
     if (isOpen) {
@@ -60,12 +63,13 @@ export default function Navbar() {
 
   const handleSignOut = () => {
     signOut();
+    navigate('/');
     closeMobileMenu();
   };
   
   // Get user initials for avatar
   const getInitials = () => {
-    if (!profile) return "U";
+    if (!isAuthenticated || !profile) return "";
     
     const firstName = profile.first_name || "";
     const lastName = profile.last_name || "";
@@ -76,9 +80,8 @@ export default function Navbar() {
       return firstName.charAt(0).toUpperCase();
     } else if (profile.email) {
       return profile.email.charAt(0).toUpperCase();
-    } else {
-      return "U";
     }
+    return "";
   };
 
   // Common navigation links for both desktop and mobile views
@@ -92,7 +95,7 @@ export default function Navbar() {
   
   // Get full name display
   const getFullName = () => {
-    if (!profile) return "User";
+    if (!isAuthenticated || !profile) return "";
     
     const firstName = profile.first_name || "";
     const lastName = profile.last_name || "";
@@ -101,9 +104,8 @@ export default function Navbar() {
       return `${firstName} ${lastName}`;
     } else if (firstName) {
       return firstName;
-    } else {
-      return "User";
     }
+    return profile.email || "";
   };
 
   return (
@@ -137,7 +139,7 @@ export default function Navbar() {
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
-            {isLoggedIn ? (
+            {isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none" asChild>
                   <Button variant="ghost" className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100">
@@ -170,7 +172,7 @@ export default function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut} className="text-red-600 cursor-pointer">
+                  <DropdownMenuItem onClick={handleSignOut} className="text-red-600 cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign Out
                   </DropdownMenuItem>
@@ -253,7 +255,7 @@ export default function Navbar() {
                   </div>
                   
                   <div className="border-t border-brand-gray-200 bg-brand-gray-50/70 p-6 mt-auto">
-                    {isLoggedIn ? (
+                    {isAuthenticated && user ? (
                       <>
                         <div className="flex items-center gap-3 mb-4">
                           <Avatar className="h-10 w-10">
