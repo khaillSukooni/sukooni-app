@@ -15,8 +15,7 @@ const FooterHeading = ({ children }: { children: React.ReactNode }) => (
 );
 
 // Build information - this would typically be injected at build time
-// For development, we're using a placeholder
-const BUILD_VERSION = import.meta.env.VITE_BUILD_VERSION || 'dev';
+const BUILD_VERSION = import.meta.env.VITE_GIT_COMMIT_HASH || 'dev';
 const BUILD_DATE = import.meta.env.VITE_BUILD_DATE || new Date().toISOString().split('T')[0];
 
 export default function Footer() {
@@ -87,7 +86,9 @@ export default function Footer() {
               © {new Date().getFullYear()} Sukooni. All rights reserved.
             </p>
             <p className="text-brand-gray-400 text-xs bg-brand-gray-100 px-2 py-0.5 rounded">
-              COMMIT: {BUILD_VERSION === 'dev' ? 'DEV-'+Math.random().toString(36).substring(2, 8).toUpperCase() : BUILD_VERSION} ({BUILD_DATE})
+              {BUILD_VERSION !== 'dev' 
+                ? `COMMIT: ${BUILD_VERSION.substring(0, 7)}` 
+                : 'Local Development'} ({BUILD_DATE})
             </p>
           </div>
           <p className="text-brand-gray-500 text-sm mt-2 md:mt-0">
