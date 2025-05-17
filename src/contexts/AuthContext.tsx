@@ -1,10 +1,8 @@
-
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthUser, UserProfile } from "@/lib/types/auth";
 import { getUserProfile } from "@/lib/utils/auth";
 import { toast } from "@/components/ui/sonner";
-import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -25,7 +23,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<AuthUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
 
   // 1️⃣ Get initial session + profile on mount
   useEffect(() => {
@@ -49,30 +46,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     getInitialSession();
 
     // 2️⃣ Subscribe to auth state changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("Auth state changed:", event);
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
       const currentUser = session?.user ?? null;
       setUser(currentUser);
 
       if (currentUser?.id) {
         const userProfile = await getUserProfile(currentUser.id);
         setProfile(userProfile);
-
-        // If this is a login event, redirect to the appropriate dashboard
-        if (event === "SIGNED_IN") {
-          // Ensure we have the user profile before redirecting
-          if (userProfile) {
-            const dashboardRoute = getDashboardRouteByRole(userProfile.role);
-            console.log("Redirecting to:", dashboardRoute);
-            navigate(dashboardRoute, { replace: true });
-            toast.success("Logged in successfully!");
-          } else {
-            console.error("User profile not found after login");
-            // If we couldn't get the profile for some reason, redirect to login
-            navigate("/login", { replace: true });
-            toast.error("Could not retrieve user profile. Please try again.");
-          }
-        }
       } else {
         setProfile(null);
       }
@@ -83,7 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   const signUp = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
@@ -116,9 +96,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
 
-      // User will be set and redirection will happen in the onAuthStateChange listener
+      const currentUser = data?.user;
+      if (currentUser?.id) {
+        setUser(currentUser);
+        const userProfile = await getUserProfile(currentUser.id);
+        setProfile(userProfile);
+      }
+
       toast.success("Logged in successfully!");
-      return data;
     } catch (error: any) {
       toast.error(error.message || "Invalid login credentials.");
       throw error;
@@ -134,7 +119,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setProfile(null);
       toast.success("Logged out successfully!");
-      navigate("/login", { replace: true });
     } catch (error) {
       console.error("Error signing out:", error);
     } finally {
@@ -146,27 +130,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isTherapist = profile?.role === "therapist";
   const isAdmin = profile?.role === "admin";
 
-  // Helper function to get dashboard route based on role
-  const getDashboardRouteByRole = (role?: string) => {
-    switch (role) {
-      case "client":
-        return "/dashboard/client";
-      case "therapist":
-        return "/dashboard/therapist";
-      case "admin":
-        return "/dashboard/admin";
-      default:
-        return "/login";
-    }
-  };
-
   const getDashboardRoute = () => {
-    // Check if profile exists and has a valid role
-    if (!profile) {
-      return "/login"; // Redirect to login if no profile
-    }
-    
-    return getDashboardRouteByRole(profile.role);
+    if (isClient) return "/dashboard/client";
+    if (isTherapist) return "/dashboard/therapist";
+    if (isAdmin) return "/dashboard/admin";
+    return "/dashboard";
   };
 
   return (
