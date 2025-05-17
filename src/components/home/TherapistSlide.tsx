@@ -37,8 +37,8 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
           <div className="h-full w-full flex items-center justify-center">
             <img
               src={therapist.gender === "Female" 
-                ? "/lovable-uploads/442af295-4353-4d0e-b7bd-24016c1ed22a.png" 
-                : "/lovable-uploads/19bb3a42-bbc7-472b-8cbd-ab9c9df7df8f.png"}
+                ? "/lovable-uploads/577f526d-251f-474a-a9dd-810dd5c4da17.png" 
+                : "/lovable-uploads/7f63572a-7bec-473c-a714-d59f3f462ab7.png"}
               alt={`${therapist.name} profile`}
               className="w-full h-full object-cover"
             />
