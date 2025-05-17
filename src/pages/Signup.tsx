@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,8 +21,15 @@ import Logo from "@/components/ui/Logo";
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signUp, isAuthenticated, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -43,11 +50,16 @@ const Signup = () => {
       navigate("/login", { state: { message: "Please check your email to verify your account." } });
     } catch (error: any) {
       console.error("Signup error:", error);
-      toast.error(error.message || "An error occurred during sign up.");
+      // Error toast is already handled in the signUp function
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  // If already authenticated, show loading indicator
+  if (isAuthenticated && !isLoading) {
+    return null; // Will be redirected by useEffect
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -140,7 +152,7 @@ const Signup = () => {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLoading}
               >
                 {isSubmitting ? "Creating account..." : "Create account"}
               </Button>

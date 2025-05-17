@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import Index from "./pages/Index";
@@ -20,86 +20,98 @@ import ClientDashboard from "./pages/client/ClientDashboard";
 import ClientAppointments from "./pages/client/ClientAppointments";
 import ClientProfile from "./pages/client/ClientProfile";
 import ClientSettings from "./pages/client/ClientSettings";
+import AuthGuard from "./components/auth/AuthGuard";
 
 const queryClient = new QueryClient();
 
-// Helper component to redirect to the appropriate dashboard
-const DashboardRedirect = () => {
-  const { getDashboardRoute } = useAuth();
-  return <Navigate to={getDashboardRoute()} replace />;
-};
-
-// Define routes for future pages
-// These will be implemented in future iterations
-const AppRoutes = () => (
-  <Routes>
-    {/* Public routes - no protection needed */}
-    <Route path="/" element={<Index />} />
-    <Route path="/login" element={<Login />} />
-    <Route path="/signup" element={<Signup />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
-    <Route path="/reset-password" element={<ResetPassword />} />
-    <Route path="/about" element={<NotFound />} />
-    <Route path="/services" element={<NotFound />} />
-    <Route path="/resources" element={<NotFound />} />
-    <Route path="/contact" element={<NotFound />} />
-    <Route path="/faq" element={<NotFound />} />
-    <Route path="/therapists" element={<Therapists />} />
-    <Route path="/therapists/:id" element={<NotFound />} />
-    <Route path="/organizations" element={<NotFound />} />
-    <Route path="/terms" element={<NotFound />} />
-    <Route path="/privacy" element={<NotFound />} />
-    
-    {/* Protected routes */}
-    <Route element={<ProtectedRoute />}>
-      {/* Dashboard redirect */}
-      <Route path="/dashboard" element={<DashboardRedirect />} />
-      <Route path="/profile" element={<NotFound />} />
-    </Route>
-
-    {/* Client-specific routes */}
-    <Route element={<ProtectedRoute allowedRoles={["client"]} />}>
-      <Route path="/dashboard/client" element={<ClientDashboardLayout />}>
-        <Route index element={<ClientDashboard />} />
-        <Route path="appointments" element={<ClientAppointments />} />
-        <Route path="profile" element={<ClientProfile />} />
-        <Route path="settings" element={<ClientSettings />} />
-        <Route path="messages" element={<NotFound />} />
-      </Route>
-    </Route>
-
-    {/* Therapist-specific routes */}
-    <Route element={<ProtectedRoute allowedRoles={["therapist"]} />}>
-      <Route path="/schedule" element={<NotFound />} />
-      <Route path="/clients" element={<NotFound />} />
-      <Route path="/dashboard/therapist" element={<NotFound />} />
-    </Route>
-
-    {/* Admin-specific routes */}
-    <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-      <Route path="/admin/therapists" element={<NotFound />} />
-      <Route path="/admin/clients" element={<NotFound />} />
-      <Route path="/admin/appointments" element={<NotFound />} />
-      <Route path="/dashboard/admin" element={<NotFound />} />
-    </Route>
-    
-    {/* Catch-all route */}
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-);
-
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/about" element={<NotFound />} />
+            <Route path="/services" element={<NotFound />} />
+            <Route path="/resources" element={<NotFound />} />
+            <Route path="/contact" element={<NotFound />} />
+            <Route path="/faq" element={<NotFound />} />
+            <Route path="/therapists" element={<Therapists />} />
+            <Route path="/therapists/:id" element={<NotFound />} />
+            <Route path="/organizations" element={<NotFound />} />
+            <Route path="/terms" element={<NotFound />} />
+            <Route path="/privacy" element={<NotFound />} />
+            
+            {/* Dashboard redirect route with auth guard */}
+            <Route path="/dashboard" element={<AuthGuard><Navigate to="/dashboard/client" replace /></AuthGuard>} />
+            <Route path="/profile" element={<AuthGuard><NotFound /></AuthGuard>} />
+
+            {/* Client-specific routes */}
+            <Route path="/dashboard/client" element={
+              <ProtectedRoute allowedRoles={["client"]}>
+                <ClientDashboardLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<ClientDashboard />} />
+              <Route path="appointments" element={<ClientAppointments />} />
+              <Route path="profile" element={<ClientProfile />} />
+              <Route path="settings" element={<ClientSettings />} />
+              <Route path="messages" element={<NotFound />} />
+            </Route>
+
+            {/* Therapist-specific routes */}
+            <Route path="/dashboard/therapist" element={
+              <ProtectedRoute allowedRoles={["therapist"]}>
+                <NotFound />
+              </ProtectedRoute>
+            } />
+            <Route path="/schedule" element={
+              <ProtectedRoute allowedRoles={["therapist"]}>
+                <NotFound />
+              </ProtectedRoute>
+            } />
+            <Route path="/clients" element={
+              <ProtectedRoute allowedRoles={["therapist"]}>
+                <NotFound />
+              </ProtectedRoute>
+            } />
+
+            {/* Admin-specific routes */}
+            <Route path="/dashboard/admin" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <NotFound />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/therapists" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <NotFound />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/clients" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <NotFound />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/appointments" element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <NotFound />
+              </ProtectedRoute>
+            } />
+            
+            {/* Catch-all route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </BrowserRouter>
 );
 
 export default App;

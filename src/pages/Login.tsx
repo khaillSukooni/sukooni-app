@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormValues, loginSchema } from "@/lib/validation/auth";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,62 +22,16 @@ import Logo from "@/components/ui/Logo";
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn, getDashboardRoute, isAuthenticated, isLoading, refreshUserData } = useAuth();
+  const { signIn, isAuthenticated, isLoading } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);
   
-  // Add a safety timeout to prevent infinite loading
+  // Redirect to dashboard or previous page if already authenticated
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (checkingAuth) {
-        console.log("Login: Auth check timeout reached, forcing state update");
-        setCheckingAuth(false);
-      }
-    }, 3000); // 3 second safety timeout
-    
-    return () => clearTimeout(timeoutId);
-  }, [checkingAuth]);
-
-  // Check authentication on mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      console.log("Login: Checking authentication on mount...");
-      try {
-        setCheckingAuth(true);
-        const { data } = await supabase.auth.getUser();
-        const hasSession = !!data.user;
-        
-        console.log("Login: Auth check complete, user exists:", hasSession);
-        
-        if (hasSession) {
-          // Refresh user data to ensure we have the profile
-          await refreshUserData();
-        }
-      } catch (error) {
-        console.error("Login: Error checking authentication:", error);
-      } finally {
-        // Always stop showing the loading state after checking
-        setCheckingAuth(false);
-      }
-    };
-    
-    checkAuth();
-  }, [refreshUserData]);
-
-  // Redirect to dashboard if authenticated
-  useEffect(() => {
-    console.log("Login: Checking redirect conditions:", {
-      isAuthenticated,
-      isLoading,
-      checkingAuth
-    });
-    
-    if (isAuthenticated && !isLoading && !checkingAuth) {
-      const redirectTo = location.state?.from || getDashboardRoute();
-      console.log("Login: User is authenticated, redirecting to", redirectTo);
-      navigate(redirectTo, { replace: true });
+    if (isAuthenticated && !isLoading) {
+      const redirectPath = location.state?.from || "/dashboard";
+      navigate(redirectPath, { replace: true });
     }
-  }, [isAuthenticated, isLoading, checkingAuth, getDashboardRoute, navigate, location.state]);
+  }, [isAuthenticated, isLoading, navigate, location.state]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -90,26 +44,19 @@ const Login = () => {
   const onSubmit = async (values: LoginFormValues) => {
     try {
       setIsSubmitting(true);
-      console.log("Login: Attempting to sign in with email and password...");
       await signIn(values.email, values.password);
-      
-      // Redirect will happen via the useEffect above when isAuthenticated becomes true
-      console.log("Login successful, auth state will update and trigger redirect");
+      // Redirect handled by useEffect
     } catch (error) {
       console.error("Login error:", error);
+      // Error toast is already handled in the signIn function
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Show loading state only while initially checking auth
-  if (checkingAuth && isLoading) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center">
-        <Logo size="lg" />
-        <p className="mt-4">Checking authentication...</p>
-      </div>
-    );
+  // If already authenticated and no redirect, show loading indicator
+  if (isAuthenticated && !isLoading) {
+    return null; // Will be redirected by useEffect
   }
 
   return (
@@ -167,7 +114,7 @@ const Login = () => {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={isSubmitting || isLoading}
               >
                 {isSubmitting ? "Signing in..." : "Sign in"}
               </Button>

@@ -30,3 +30,15 @@ export const updateUserRole = async (userId: string, role: UserRole): Promise<bo
 
   return true;
 };
+
+// Helper function to check session validity
+export const checkSessionValid = async (): Promise<boolean> => {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) throw error;
+    return !!data.session;
+  } catch (error) {
+    console.error("Error checking session validity:", error);
+    return false;
+  }
+};
