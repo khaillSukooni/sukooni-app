@@ -3,7 +3,7 @@ import React from "react";
 import { Card } from "@/components/ui/card";
 import { Therapist } from "@/lib/types/therapist";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Circle, Languages, Star } from "lucide-react";
+import { Circle, Languages, Clock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 
@@ -35,14 +35,14 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
     <Card className="overflow-hidden rounded-xl shadow-md h-full">
       <div className="relative h-full">
         <AspectRatio ratio={3 / 4} className="bg-muted">
-          {/* Uniform placeholder image */}
+          {/* Improved placeholder image */}
           <Avatar className="h-full w-full rounded-none">
             <AvatarImage
-              src="/placeholder.svg"
+              src="/lovable-uploads/577f526d-251f-474a-a9dd-810dd5c4da17.png"
               alt={`Photo of ${therapist.name}`}
               className="object-cover"
             />
-            <AvatarFallback className="text-4xl rounded-none">
+            <AvatarFallback className="text-4xl rounded-none bg-brand-gray-100">
               {therapist.name.split(' ').map(n => n[0]).join('')}
             </AvatarFallback>
           </Avatar>
@@ -64,17 +64,17 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
             ))}
           </div>
 
-          <div className="flex justify-between items-center mt-2 text-sm text-muted-foreground pt-1">
+          <div className="flex flex-col gap-1 mt-2 text-sm text-muted-foreground pt-1">
             {/* Languages spoken */}
             <div className="flex items-center gap-1.5">
               <Languages className="h-4 w-4 text-brand-blue" />
               <span>{languageAbbreviations.join(' | ')}</span>
             </div>
             
-            {/* Experience */}
+            {/* Experience - moved to its own line and changed icon */}
             <div className="flex items-center gap-1.5">
-              <Star className="h-4 w-4 text-brand-blue" />
-              <span>{therapist.yearsExperience}+</span>
+              <Clock className="h-4 w-4 text-brand-blue" />
+              <span>{therapist.yearsExperience}+ years experience</span>
             </div>
           </div>
         </div>
