@@ -38,57 +38,78 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
   };
 
   return (
-    <Card className="flex flex-col h-full transition-all duration-300 hover:shadow-md">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex gap-4 items-center">
-            <Avatar className="h-16 w-16 border bg-primary/5">
-              <AvatarImage src="/placeholder.svg" alt={therapist.name} />
-              <AvatarFallback className="bg-gradient-to-br from-primary/20 to-secondary/20 text-primary-foreground flex items-center justify-center">
-                <UserRound className="h-8 w-8" />
-              </AvatarFallback>
-            </Avatar>
+    <div className="relative h-full">
+      <Card className="flex flex-col h-full transition-all duration-300 hover:shadow-md">
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div className="flex gap-4 items-center">
+              <Avatar className="h-16 w-16 border bg-primary/5">
+                <AvatarImage src="/placeholder.svg" alt={therapist.name} />
+                <AvatarFallback className="bg-gradient-to-br from-primary/20 to-secondary/20 text-primary-foreground flex items-center justify-center">
+                  <UserRound className="h-8 w-8" />
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle>{therapist.name}</CardTitle>
+                <CardDescription className="mt-1 flex items-center">
+                  <Clock className="h-4 w-4 mr-1" />
+                  {therapist.yearsExperience} years experience
+                </CardDescription>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="flex-grow">
+          <div className="space-y-4">
             <div>
-              <CardTitle>{therapist.name}</CardTitle>
-              <CardDescription className="mt-1 flex items-center">
-                <Clock className="h-4 w-4 mr-1" />
-                {therapist.yearsExperience} years experience
-              </CardDescription>
+              <p className="text-sm font-medium mb-1">Languages</p>
+              <div className="flex flex-wrap gap-1">
+                {therapist.languages.map((language, index) => (
+                  <div key={index} className="flex items-center text-sm text-muted-foreground">
+                    <Languages className="h-3 w-3 mr-1" />
+                    <span>{language}</span>
+                    {index < therapist.languages.length - 1 && <span className="mx-1">•</span>}
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="flex-grow">
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm font-medium mb-1">Languages</p>
-            <div className="flex flex-wrap gap-1">
-              {therapist.languages.map((language, index) => (
-                <div key={index} className="flex items-center text-sm text-muted-foreground">
-                  <Languages className="h-3 w-3 mr-1" />
-                  <span>{language}</span>
-                  {index < therapist.languages.length - 1 && <span className="mx-1">•</span>}
-                </div>
-              ))}
+
+            <div>
+              <p className="text-sm font-medium mb-1">Specializations</p>
+              <div className="flex flex-wrap gap-1">
+                {therapist.specializations.map((specialization, index) => (
+                  <Badge key={index} variant="outline" className="bg-primary/5">
+                    {specialization}
+                  </Badge>
+                ))}
+              </div>
             </div>
+
+            <p className="text-sm">{therapist.shortBio}</p>
           </div>
-
-          <div>
-            <p className="text-sm font-medium mb-1">Specializations</p>
-            <div className="flex flex-wrap gap-1">
-              {therapist.specializations.map((specialization, index) => (
-                <Badge key={index} variant="outline" className="bg-primary/5">
-                  {specialization}
-                </Badge>
-              ))}
-            </div>
-          </div>
-
-          <p className="text-sm">{therapist.shortBio}</p>
-        </div>
-
-        <Collapsible open={isExpanded} className="mt-4">
-          <CollapsibleContent className="pt-4 border-t mt-4 space-y-4">
+        </CardContent>
+        <CardFooter>
+          <Button 
+            variant="ghost" 
+            onClick={onToggleExpand} 
+            className="w-full text-primary"
+          >
+            {isExpanded ? (
+              <span className="flex items-center">
+                Show Less <ChevronUp className="ml-1 h-4 w-4" />
+              </span>
+            ) : (
+              <span className="flex items-center">
+                Learn More <ChevronDown className="ml-1 h-4 w-4" />
+              </span>
+            )}
+          </Button>
+        </CardFooter>
+      </Card>
+      
+      {isExpanded && (
+        <div className="mt-2 p-4 border rounded-lg bg-white shadow-md">
+          <div className="space-y-4">
             <div>
               <h4 className="text-sm font-medium mb-2">About Me</h4>
               <p className="text-sm">{therapist.longBio}</p>
@@ -115,28 +136,10 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
             </div>
             
             <Button className="w-full">Book a Session</Button>
-          </CollapsibleContent>
-        </Collapsible>
-      </CardContent>
-      <CardFooter className="pt-0">
-        <Button 
-          variant="ghost" 
-          onClick={onToggleExpand} 
-          className="w-full text-primary"
-          style={{ height: isExpanded ? 'auto' : undefined }}
-        >
-          {isExpanded ? (
-            <span className="flex items-center">
-              Show Less <ChevronUp className="ml-1 h-4 w-4" />
-            </span>
-          ) : (
-            <span className="flex items-center">
-              Learn More <ChevronDown className="ml-1 h-4 w-4" />
-            </span>
-          )}
-        </Button>
-      </CardFooter>
-    </Card>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
