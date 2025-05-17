@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { UserRole } from "@/lib/types/auth";
@@ -17,6 +16,20 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   const { user, profile, isLoading, isAuthenticated, getDashboardRoute, refreshUserData } = useAuth();
   const location = useLocation();
   const [isChecking, setIsChecking] = useState(true);
+  const [checkTimeout, setCheckTimeout] = useState(false);
+
+  // Add safety timeout to prevent indefinite loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (isChecking) {
+        console.log("ProtectedRoute: Auth check timeout reached, forcing state update");
+        setCheckTimeout(true);
+        setIsChecking(false);
+      }
+    }, 3000); // 3 second safety timeout
+    
+    return () => clearTimeout(timer);
+  }, [isChecking]);
 
   // On first mount or route change, verify session is valid
   useEffect(() => {
@@ -52,21 +65,41 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     isAuthenticated,
     isLoading,
     isChecking,
+    checkTimeout,
     path: location.pathname,
     hasUser: !!user,
     hasProfile: !!profile,
     allowedRoles
   });
 
-  // If authentication is still loading or checking, show loading indicator
-  if (isLoading || isChecking) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
-  }
-
-  // If user is not logged in, redirect to login with current path as return URL
-  if (!isAuthenticated || !user) {
+  // If authentication check timed out or is no longer checking and not authenticated, redirect
+  if (!isLoading && !isChecking && !isAuthenticated) {
     console.log("Protected route: User not authenticated, redirecting to", redirectTo);
     return <Navigate to={redirectTo} replace state={{ from: location.pathname }} />;
+  }
+
+  // If authentication is still loading or checking and hasn't timed out, show loading indicator
+  if ((isLoading || isChecking) && !checkTimeout) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold mb-2">Checking authentication...</h2>
+          <p className="text-gray-600">Please wait while we verify your access.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If we have a user but no profile yet, and we're not checking anymore, let them proceed 
+  // (profile might be loading or missing but we'll let components handle that)
+  if (isAuthenticated && user && !profile && !isChecking) {
+    // If roles are required but we have no profile to check, redirect to dashboard
+    if (allowedRoles.length > 0) {
+      console.log("Protected route: User has no profile but roles are required, redirecting to dashboard");
+      return <Navigate to={getDashboardRoute()} replace />;
+    }
+    // Otherwise allow access with just user
+    return <Outlet />;
   }
 
   // If allowedRoles is empty, allow any authenticated user

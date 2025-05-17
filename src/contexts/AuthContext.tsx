@@ -27,16 +27,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
 
   // Fetch user profile when we have a user ID
   const fetchUserProfile = useCallback(async (userId: string) => {
     try {
+      console.log("Fetching user profile for ID:", userId);
       const userProfile = await getUserProfile(userId);
       console.log("Fetched user profile:", userProfile ? "Profile found" : "No profile");
       setProfile(userProfile);
+      return userProfile;
     } catch (error) {
       console.error("Error fetching user profile:", error);
       setProfile(null);
+      return null;
     }
   }, []);
 
@@ -67,6 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
+      setAuthChecked(true);
     }
   }, [fetchUserProfile]);
 
@@ -99,6 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(false);
       } finally {
         setIsLoading(false);
+        setAuthChecked(true);
       }
     };
 
@@ -129,6 +135,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       setIsLoading(false);
+      setAuthChecked(true);
     });
 
     return () => {
@@ -177,8 +184,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsAuthenticated(true);
         
         // Fetch user profile
-        await fetchUserProfile(currentUser.id);
-        console.log("AuthContext: Profile fetched, authentication complete");
+        const userProfile = await fetchUserProfile(currentUser.id);
+        console.log("AuthContext: Profile fetched:", userProfile ? "Success" : "Failed");
+        
+        // Ensure we mark auth as checked after processing
+        setAuthChecked(true);
+        
+        console.log("AuthContext: Authentication complete", { 
+          isAuthenticated: true, 
+          hasUser: true, 
+          hasProfile: !!userProfile 
+        });
       }
 
       toast.success("Logged in successfully!");
@@ -188,6 +204,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(null);
       setProfile(null);
       setIsAuthenticated(false);
+      setAuthChecked(true);
       
       toast.error(error.message || "Invalid login credentials.");
       throw error;
@@ -208,6 +225,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error("Error signing out:", error);
     } finally {
       setIsLoading(false);
+      setAuthChecked(true);
     }
   };
 
@@ -228,9 +246,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isAuthenticated, 
       hasUser: !!user, 
       hasProfile: !!profile,
-      isLoading
+      isLoading,
+      authChecked
     });
-  }, [isAuthenticated, user, profile, isLoading]);
+  }, [isAuthenticated, user, profile, isLoading, authChecked]);
 
   return (
     <AuthContext.Provider

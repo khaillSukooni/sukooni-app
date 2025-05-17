@@ -25,6 +25,18 @@ const Login = () => {
   const { signIn, getDashboardRoute, isAuthenticated, isLoading, refreshUserData } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  
+  // Add a safety timeout to prevent infinite loading
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (checkingAuth) {
+        console.log("Login: Auth check timeout reached, forcing state update");
+        setCheckingAuth(false);
+      }
+    }, 3000); // 3 second safety timeout
+    
+    return () => clearTimeout(timeoutId);
+  }, [checkingAuth]);
 
   // Check authentication on mount
   useEffect(() => {
@@ -54,12 +66,18 @@ const Login = () => {
 
   // Redirect to dashboard if authenticated
   useEffect(() => {
-    if (isAuthenticated && !isLoading) {
+    console.log("Login: Checking redirect conditions:", {
+      isAuthenticated,
+      isLoading,
+      checkingAuth
+    });
+    
+    if (isAuthenticated && !isLoading && !checkingAuth) {
       const redirectTo = location.state?.from || getDashboardRoute();
       console.log("Login: User is authenticated, redirecting to", redirectTo);
       navigate(redirectTo, { replace: true });
     }
-  }, [isAuthenticated, isLoading, getDashboardRoute, navigate, location.state]);
+  }, [isAuthenticated, isLoading, checkingAuth, getDashboardRoute, navigate, location.state]);
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -85,10 +103,11 @@ const Login = () => {
   };
 
   // Show loading state only while initially checking auth
-  if (checkingAuth) {
+  if (checkingAuth && isLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <p>Checking authentication...</p>
+        <Logo size="lg" />
+        <p className="mt-4">Checking authentication...</p>
       </div>
     );
   }

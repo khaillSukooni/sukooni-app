@@ -115,23 +115,6 @@ export default function Navbar() {
     return profile.email || "";
   };
 
-  // If still loading auth state, render a simplified navbar
-  if (isLoading) {
-    return (
-      <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-brand-gray-200">
-        <div className="container-tight py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link to="/">
-                <Logo />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-    );
-  }
-
   return (
     <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-brand-gray-200">
       <div className="container-tight py-4">
@@ -142,7 +125,7 @@ export default function Navbar() {
             </Link>
           </div>
           
-          {/* Desktop Menu */}
+          {/* Desktop Menu - always visible regardless of loading state */}
           <div className="hidden md:flex items-center space-x-1">
             {navLinks.map((link, index) => 
               link.isAnchorLink ? (
@@ -163,6 +146,7 @@ export default function Navbar() {
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
+            {/* Always show appropriate authentication UI */}
             {isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="focus:outline-none" asChild>
@@ -174,7 +158,7 @@ export default function Navbar() {
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm text-brand-gray-600">
-                        {getFullName()}
+                        {getFullName() || "Loading..."}
                       </span>
                     </div>
                   </Button>
@@ -182,10 +166,10 @@ export default function Navbar() {
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-3 py-2">
                     <p className="text-sm font-medium">
-                      {getFullName()}
+                      {getFullName() || "Loading..."}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {profile?.email || ""}
+                      {profile?.email || user?.email || ""}
                     </p>
                   </div>
                   <DropdownMenuSeparator />
@@ -226,7 +210,7 @@ export default function Navbar() {
             )}
           </div>
           
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button - always visible regardless of loading state */}
           <div className="md:hidden">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
@@ -288,8 +272,8 @@ export default function Navbar() {
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="font-medium">{getFullName()}</p>
-                            <p className="text-sm text-brand-gray-600">{profile?.email || ""}</p>
+                            <p className="font-medium">{getFullName() || "Loading..."}</p>
+                            <p className="text-sm text-brand-gray-600">{profile?.email || user?.email || ""}</p>
                           </div>
                         </div>
                         <div className="grid gap-3">
