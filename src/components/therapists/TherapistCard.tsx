@@ -38,7 +38,7 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
   };
 
   return (
-    <Card className="h-full flex flex-col transition-all duration-300 hover:shadow-md">
+    <Card className="flex flex-col h-full transition-all duration-300 hover:shadow-md">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex gap-4 items-center">
@@ -123,6 +123,7 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
           variant="ghost" 
           onClick={onToggleExpand} 
           className="w-full text-primary"
+          style={{ height: isExpanded ? 'auto' : undefined }}
         >
           {isExpanded ? (
             <span className="flex items-center">

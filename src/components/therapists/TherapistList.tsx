@@ -22,9 +22,9 @@ const TherapistList: React.FC<TherapistListProps> = ({ therapists }) => {
           <p className="text-muted-foreground">Try adjusting your filters or search criteria to see more results.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 grid-auto-rows-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {therapists.map((therapist) => (
-            <div key={therapist.id} className="h-full grid">
+            <div key={therapist.id} className="align-self-start w-full">
               <TherapistCard 
                 therapist={therapist} 
                 isExpanded={expandedTherapistId === therapist.id}
