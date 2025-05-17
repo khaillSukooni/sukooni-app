@@ -17,10 +17,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Logo from "@/components/ui/Logo";
+import { toast } from "@/components/ui/sonner";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { signIn, getDashboardRoute } = useAuth();
+  const { signIn } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
 
@@ -36,16 +37,16 @@ const Login = () => {
     try {
       setIsSubmitting(true);
       setLoginError(null);
+      
+      // Sign in the user and get the profile data directly from the signIn function
       await signIn(values.email, values.password);
       
-      // Use a setTimeout to ensure profile has been loaded before redirecting
-      setTimeout(() => {
-        // Redirect directly to role-specific dashboard
-        navigate(getDashboardRoute(), { replace: true });
-      }, 100);
+      // The AuthContext will handle the redirection after successful login
+      // and profile loading via the onAuthStateChange listener
     } catch (error) {
       console.error("Login error:", error);
       setLoginError("Invalid login credentials. Please try again.");
+      toast.error("Login failed. Please check your credentials and try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -65,6 +66,12 @@ const Login = () => {
         </div>
 
         <div className="rounded-lg border bg-card p-6 shadow-sm">
+          {loginError && (
+            <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+              {loginError}
+            </div>
+          )}
+          
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
