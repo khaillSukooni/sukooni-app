@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import Logo from "@/components/ui/Logo";
@@ -84,11 +85,9 @@ export default function Footer() {
             <p className="text-brand-gray-500 text-sm">
               © {new Date().getFullYear()} Sukooni. All rights reserved.
             </p>
-            {BUILD_VERSION !== 'dev' && (
-              <p className="text-brand-gray-400 text-xs bg-brand-gray-100 px-2 py-0.5 rounded">
-                COMMIT: {BUILD_VERSION.substring(0, 7)} ({BUILD_DATE})
-              </p>
-            )}
+            <p className="text-brand-gray-400 text-xs bg-brand-gray-100 px-2 py-0.5 rounded">
+              COMMIT: {BUILD_VERSION.substring(0, 7)} ({BUILD_DATE})
+            </p>
           </div>
           <p className="text-brand-gray-500 text-sm mt-2 md:mt-0">
             If you are in crisis, please call or text the 24/7 Suicide & Crisis Lifeline at +971 4 393 0009 anytime.
