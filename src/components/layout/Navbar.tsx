@@ -114,23 +114,6 @@ export default function Navbar() {
     return profile.email || "";
   };
 
-  // If still loading auth state, render a simplified navbar
-  if (isLoading) {
-    return (
-      <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-brand-gray-200">
-        <div className="container-tight py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link to="/">
-                <Logo />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
-    );
-  }
-
   return (
     <nav className="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-brand-gray-200">
       <div className="container-tight py-4">
