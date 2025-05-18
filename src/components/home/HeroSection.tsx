@@ -15,8 +15,8 @@ const HeroSection = () => {
       </div>
       
       <div className="container mx-auto px-4 py-16 md:py-24 lg:py-28 relative z-10">
-        <div className="flex flex-col md:flex-row items-center gap-12 md:gap-8">
-          <div className="w-full md:w-1/2 space-y-6 text-center md:text-left">
+        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-4">
+          <div className="w-full md:w-[55%] space-y-6 text-center md:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
               Peace of Mind, <br />
               <span className="gradient-text">Just a Tap Away</span>
@@ -55,7 +55,7 @@ const HeroSection = () => {
             </div>
           </div>
           
-          <div className="w-full md:w-1/2 flex justify-center md:justify-end">
+          <div className="w-full md:w-[45%] flex justify-center md:justify-end">
             <div className="relative max-w-md w-full">
               <div className="absolute -inset-1 bg-gradient-to-r from-brand-blue to-brand-teal rounded-3xl blur opacity-20"></div>
               <div className="relative bg-white rounded-3xl shadow-xl p-2">
