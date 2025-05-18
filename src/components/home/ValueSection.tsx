@@ -11,9 +11,9 @@ const ValueSection = () => {
           {/* Text content - will appear first on mobile and left on desktop */}
           <div className="w-full md:w-1/2 space-y-8 order-1 md:order-1 text-center md:text-left">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#34526c]">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
                 We are dedicated to making world-class therapy
-                accessible for everyone
+                <span className="gradient-text"> accessible for everyone</span>
               </h2>
               <p className="text-brand-gray-600 text-lg">
                 Our platform connects you with licensed professionals who provide personalized support for your mental health journey.
