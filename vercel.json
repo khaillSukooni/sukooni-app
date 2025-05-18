@@ -3,17 +3,8 @@
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-store, max-age=0, s-maxage=0"
-        }
+        { "key": "Cache-Control", "value": "no-store, max-age=0, s-maxage=0" }
       ]
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/((?!favicon\\.ico|robots\\.txt|assets|static|.*\\.(js|css|png|jpg|svg|ico|json|txt)).*)",
-      "destination": "/"
     }
   ]
 }
