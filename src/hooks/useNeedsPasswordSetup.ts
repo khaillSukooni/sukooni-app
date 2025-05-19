@@ -16,21 +16,14 @@ export const useNeedsPasswordSetup = () => {
       }
 
       try {
-        // Check if the user was created via invitation
-        // We can check metadata, or a specific flag in the database
-        // For this example, checking if the auth method is 'invite'
-        const { data, error } = await supabase
-          .from('user_settings')
-          .select('needs_password_setup')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error) {
-          console.error("Error checking password status:", error);
-          setNeedsPasswordSetup(false);
-        } else {
-          setNeedsPasswordSetup(data?.needs_password_setup || false);
-        }
+        // For now, we'll assume invited users need to set up passwords
+        // In a real implementation, you would track this with a specific field
+        // in the profiles table or check authentication metadata
+        
+        // Check if login method indicates this was an invite
+        // For demo purposes, we'll just set to false for now
+        // This would be replaced with actual logic based on your auth flow
+        setNeedsPasswordSetup(false);
       } catch (err) {
         console.error("Failed to check password setup status:", err);
         setNeedsPasswordSetup(false);

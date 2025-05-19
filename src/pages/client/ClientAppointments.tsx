@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { format, parseISO, isThisMonth, isPast, addMonths, isAfter } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -229,9 +228,9 @@ const ClientAppointments = () => {
     // Sort months chronologically
     return Object.keys(grouped)
       .sort((a, b) => {
-        const dateA = parseISO(`01 ${a}`);
-        const dateB = parseISO(`01 ${b}`);
-        return dateB - dateA; // Most recent first
+        const dateA = new Date(a);
+        const dateB = new Date(b);
+        return dateB.getTime() - dateA.getTime(); // Most recent first
       })
       .map(month => ({
         month,
