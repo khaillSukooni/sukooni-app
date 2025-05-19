@@ -21,6 +21,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   refreshUserData: () => Promise<void>;
   isProfileLoading: boolean;
+  needsPasswordSetup: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,6 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isLoading, 
     isAuthenticated, 
     isProfileLoading,
+    needsPasswordSetup,
     refreshUserData 
   } = useAuthState();
   
@@ -59,6 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated,
         refreshUserData,
         isProfileLoading,
+        needsPasswordSetup,
       }}
     >
       {children}

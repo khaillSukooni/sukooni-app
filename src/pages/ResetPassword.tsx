@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Logo from "@/components/ui/Logo";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const resetPasswordSchema = z.object({
+const passwordSchema = z.object({
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -32,33 +33,71 @@ const resetPasswordSchema = z.object({
   path: ["confirmPassword"],
 });
 
-type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+type PasswordFormValues = z.infer<typeof passwordSchema>;
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [hasResetToken, setHasResetToken] = useState(false);
+  const [hasToken, setHasToken] = useState(false);
+  const [isSetPassword, setIsSetPassword] = useState(false);
+  const [tokenError, setTokenError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check if the URL contains the access_token parameter from Supabase
-    const hash = window.location.hash;
-    if (hash && hash.includes("access_token")) {
-      setHasResetToken(true);
-    } else {
-      toast.error("Invalid or expired password reset link.");
-      navigate("/forgot-password");
-    }
-  }, [navigate]);
+    const checkTokenAndType = async () => {
+      // Check if the URL contains the access_token parameter from Supabase
+      const hash = window.location.hash;
+      
+      if (hash && hash.includes("access_token")) {
+        setHasToken(true);
+        
+        // Determine if this is a password reset or initial password setup
+        // If coming from state (DashboardRedirect sent the user here), it's a password setup
+        const isPasswordSetup = location.state?.isSetPassword === true;
+        setIsSetPassword(isPasswordSetup);
 
-  const form = useForm<ResetPasswordFormValues>({
-    resolver: zodResolver(resetPasswordSchema),
+        // For users who need to set a password, we don't need to validate the token the same way
+        if (!isPasswordSetup) {
+          try {
+            // Verify token is valid by attempting to get user session
+            const { data, error } = await supabase.auth.getSession();
+            if (error) {
+              throw error;
+            }
+            
+            // If no session found despite having an access_token in URL, the token is invalid
+            if (!data.session) {
+              setTokenError("Invalid or expired password reset link.");
+              setHasToken(false);
+            }
+          } catch (error: any) {
+            console.error("Token validation error:", error);
+            setTokenError(error.message || "Invalid or expired password reset link.");
+            setHasToken(false);
+          }
+        }
+      } else if (location.state?.isSetPassword === true) {
+        // User was redirected here programmatically with isSetPassword state
+        setHasToken(true);
+        setIsSetPassword(true);
+      } else {
+        setTokenError("Invalid or expired password reset link.");
+        setHasToken(false);
+      }
+    };
+
+    checkTokenAndType();
+  }, [navigate, location.state]);
+
+  const form = useForm<PasswordFormValues>({
+    resolver: zodResolver(passwordSchema),
     defaultValues: {
       password: "",
       confirmPassword: "",
     },
   });
 
-  const onSubmit = async (values: ResetPasswordFormValues) => {
+  const onSubmit = async (values: PasswordFormValues) => {
     try {
       setIsSubmitting(true);
       const { error } = await supabase.auth.updateUser({
@@ -69,8 +108,11 @@ const ResetPassword = () => {
         throw error;
       }
       
-      toast.success("Password has been reset successfully!");
-      navigate("/login");
+      toast.success(isSetPassword 
+        ? "Password has been set successfully!" 
+        : "Password has been reset successfully!");
+      
+      navigate("/dashboard");
     } catch (error: any) {
       toast.error(error.message || "An error occurred. Please try again.");
     } finally {
@@ -78,8 +120,19 @@ const ResetPassword = () => {
     }
   };
 
-  if (!hasResetToken) {
-    return <div className="flex h-screen items-center justify-center">Validating reset token...</div>;
+  if (!hasToken) {
+    return (
+      <div className="flex h-screen items-center justify-center p-4">
+        <div className="w-full max-w-md space-y-4 text-center">
+          <Alert variant="destructive">
+            <AlertDescription>{tokenError || "Invalid token. Please try again."}</AlertDescription>
+          </Alert>
+          <Button asChild>
+            <Link to="/forgot-password">Back to Password Recovery</Link>
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -89,9 +142,13 @@ const ResetPassword = () => {
           <Link to="/">
             <Logo size="lg" />
           </Link>
-          <h1 className="text-3xl font-bold">Set New Password</h1>
+          <h1 className="text-3xl font-bold">
+            {isSetPassword ? "Set Your Password" : "Reset Password"}
+          </h1>
           <p className="text-center text-muted-foreground">
-            Please create a new password for your account
+            {isSetPassword 
+              ? "Please create a secure password for your account" 
+              : "Please create a new password for your account"}
           </p>
         </div>
 
@@ -103,7 +160,7 @@ const ResetPassword = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>New Password</FormLabel>
+                    <FormLabel>{isSetPassword ? "New Password" : "New Password"}</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
@@ -117,7 +174,7 @@ const ResetPassword = () => {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm New Password</FormLabel>
+                    <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
@@ -131,7 +188,9 @@ const ResetPassword = () => {
                 className="w-full"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Updating password..." : "Set new password"}
+                {isSubmitting 
+                  ? (isSetPassword ? "Setting password..." : "Updating password...") 
+                  : (isSetPassword ? "Set password" : "Reset password")}
               </Button>
             </form>
           </Form>
