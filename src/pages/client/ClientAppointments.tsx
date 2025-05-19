@@ -324,9 +324,9 @@ const ClientAppointments = () => {
                           
                           <h3 className="font-medium mt-1">{appointment.title}</h3>
                           
-                          {/* Badge and avatars on the same line */}
-                          <div className="flex items-center justify-between mt-2">
-                            <div>
+                          {/* Badge and avatars container - Fixed alignment for desktop */}
+                          <div className="flex flex-wrap items-center mt-2 gap-2">
+                            <div className="flex items-center gap-2">
                               {isVideoSession ? (
                                 <Badge variant="outline" className="flex items-center gap-1 bg-brand-blue/10 text-brand-blue border-brand-blue/20">
                                   <Video className="h-3 w-3" />
@@ -340,19 +340,20 @@ const ClientAppointments = () => {
                               )}
                               
                               {appointment.status === "cancelled" && (
-                                <Badge variant="outline" className="ml-2 bg-red-50 text-red-500 border-red-100">
+                                <Badge variant="outline" className="bg-red-50 text-red-500 border-red-100">
                                   Cancelled
                                 </Badge>
                               )}
-                            </div>
-                            
-                            <div className="flex -space-x-2">
-                              {appointment.participants.map((participant, i) => (
-                                <Avatar key={i} className="border-2 border-white h-7 w-7">
-                                  <AvatarImage src={participant.avatar} alt={participant.name} />
-                                  <AvatarFallback>{participant.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                              ))}
+                              
+                              {/* Participant avatars - Now part of the same flex container */}
+                              <div className="flex -space-x-2 ml-2">
+                                {appointment.participants.map((participant, i) => (
+                                  <Avatar key={i} className="border-2 border-white h-7 w-7">
+                                    <AvatarImage src={participant.avatar} alt={participant.name} />
+                                    <AvatarFallback>{participant.name.charAt(0)}</AvatarFallback>
+                                  </Avatar>
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>
