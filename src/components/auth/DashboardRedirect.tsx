@@ -11,9 +11,7 @@ const DashboardRedirect = () => {
     isProfileLoading, 
     getDashboardRoute, 
     refreshUserData, 
-    isAuthenticated,
-    needsPasswordSetup,
-    isLoading
+    isAuthenticated 
   } = useAuth();
 
   // If we don't have a profile yet but do have a user, try to fetch the profile
@@ -26,34 +24,16 @@ const DashboardRedirect = () => {
 
   console.log("DashboardRedirect state:", {
     isAuthenticated,
-    isLoading,
     hasUser: !!user,
     hasProfile: !!profile,
     isProfileLoading,
     dashboardRoute: getDashboardRoute(),
-    needsPasswordSetup
   });
-
-  // While determining auth state, show loading
-  if (isLoading) {
-    return (
-      <div className="flex h-screen flex-col items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="mt-2 text-muted-foreground">Verifying your access...</p>
-      </div>
-    );
-  }
 
   // If not authenticated at all, redirect to login
   if (!isAuthenticated) {
     console.log("Not authenticated, redirecting to login");
     return <Navigate to="/login" replace />;
-  }
-  
-  // If authenticated but needs to set password, redirect to reset password page
-  if (needsPasswordSetup) {
-    console.log("User needs to set password, redirecting to password setup");
-    return <Navigate to="/reset-password" replace state={{ isSetPassword: true }} />;
   }
 
   // If profile is still loading, show loading indicator

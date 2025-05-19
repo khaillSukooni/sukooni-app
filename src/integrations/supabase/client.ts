@@ -16,9 +16,7 @@ export const supabase = createClient<Database>(
     auth: {
       persistSession: true,
       autoRefreshToken: true,
-      storage: localStorage,
-      detectSessionInUrl: true, // Ensure this is true to detect auth params in URL
-      flowType: 'pkce'
+      storage: localStorage
     }
   }
 );
@@ -35,17 +33,4 @@ export const clearAuthState = () => {
       localStorage.removeItem(key);
     }
   });
-};
-
-// Debug helper for auth state (useful for troubleshooting)
-export const debugAuthState = async () => {
-  const session = await supabase.auth.getSession();
-  const user = await supabase.auth.getUser();
-  return {
-    session: session?.data?.session,
-    user: user?.data?.user,
-    localStorage: Object.keys(localStorage).filter(key => 
-      key.startsWith('supabase.auth.') || key.includes('-auth-token')
-    )
-  };
 };

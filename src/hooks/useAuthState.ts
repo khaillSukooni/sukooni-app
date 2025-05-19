@@ -13,7 +13,6 @@ export function useAuthState() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
-  const [needsPasswordSetup, setNeedsPasswordSetup] = useState(false);
 
   // Fetch user profile when we have a user ID
   const fetchUserProfile = useCallback(async (userId: string) => {
@@ -37,35 +36,6 @@ export function useAuthState() {
     }
   }, []);
 
-  // Determine if a user needs to set a password
-  // This is typically for users who signed up via magic link or OAuth
-  const checkPasswordSetup = useCallback(async (currentUser: AuthUser | null) => {
-    if (!currentUser) {
-      setNeedsPasswordSetup(false);
-      return false;
-    }
-
-    // Check if user was invited and has never set a password
-    // For Supabase, we'll use the metadata to check this
-    const isInvited = currentUser.email_confirmed_at && !currentUser.last_sign_in_at;
-    const noPasswordHash = currentUser.app_metadata?.provider === 'email' && 
-                          !currentUser.app_metadata?.password_hash;
-    const needsSetup = isInvited || noPasswordHash;
-
-    console.log("Password setup check:", {
-      isInvited,
-      noPasswordHash,
-      needsSetup,
-      provider: currentUser.app_metadata?.provider,
-      hasPasswordHash: !!currentUser.app_metadata?.password_hash,
-      email_confirmed_at: currentUser.email_confirmed_at,
-      last_sign_in_at: currentUser.last_sign_in_at
-    });
-
-    setNeedsPasswordSetup(needsSetup);
-    return needsSetup;
-  }, []);
-
   // Refresh user session and profile data
   const refreshUserData = useCallback(async () => {
     console.log("Refreshing user data...");
@@ -84,10 +54,8 @@ export function useAuthState() {
 
       if (currentUser?.id) {
         await fetchUserProfile(currentUser.id);
-        await checkPasswordSetup(currentUser);
       } else {
         setProfile(null);
-        setNeedsPasswordSetup(false);
       }
     } catch (error) {
       console.error("Error refreshing user data:", error);
@@ -95,11 +63,10 @@ export function useAuthState() {
       setProfile(null);
       setSession(null);
       setIsAuthenticated(false);
-      setNeedsPasswordSetup(false);
     } finally {
       setIsLoading(false);
     }
-  }, [fetchUserProfile, checkPasswordSetup]);
+  }, [fetchUserProfile]);
 
   // Set up auth listener and get initial session
   useEffect(() => {
@@ -124,10 +91,6 @@ export function useAuthState() {
             const userProfile = await getUserProfile(newSession.user.id);
             console.log("Profile after auth change:", userProfile ? "Profile found" : "No profile");
             setProfile(userProfile);
-            
-            // Check if user needs password setup
-            await checkPasswordSetup(newSession.user);
-            
             setIsProfileLoading(false);
           }, 0);
         } catch (error) {
@@ -137,7 +100,6 @@ export function useAuthState() {
         }
       } else {
         setProfile(null);
-        setNeedsPasswordSetup(false);
         setIsProfileLoading(false);
       }
       
@@ -147,7 +109,6 @@ export function useAuthState() {
         setUser(null);
         setSession(null);
         setIsAuthenticated(false);
-        setNeedsPasswordSetup(false);
       }
       
       setIsLoading(false);
@@ -171,18 +132,15 @@ export function useAuthState() {
             setIsProfileLoading(true);
             const userProfile = await getUserProfile(currentUser.id);
             setProfile(userProfile);
-            
-            // Check if user needs password setup
-            await checkPasswordSetup(currentUser);
           } catch (error) {
             console.error("Error fetching initial profile:", error);
             setProfile(null);
           } finally {
             setIsProfileLoading(false);
           }
-        } 
-        
-        setIsLoading(false);
+        } else {
+          setIsLoading(false);
+        }
       } catch (error) {
         console.error("Error checking initial session:", error);
         setIsLoading(false);
@@ -195,7 +153,7 @@ export function useAuthState() {
     return () => {
       authListener?.subscription.unsubscribe();
     };
-  }, [checkPasswordSetup]);
+  }, []);
 
   return {
     user,
@@ -204,7 +162,6 @@ export function useAuthState() {
     isLoading,
     isAuthenticated,
     isProfileLoading,
-    needsPasswordSetup,
     fetchUserProfile,
     refreshUserData,
     setUser,
