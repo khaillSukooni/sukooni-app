@@ -1,8 +1,9 @@
+
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Therapist } from "@/lib/types/therapist";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Circle, Languages, Clock } from "lucide-react";
+import { Clock, Languages } from "lucide-react";
 
 interface TherapistSlideProps {
   therapist: Therapist;
@@ -30,10 +31,10 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
 
   return (
     <Card className="overflow-hidden rounded-xl shadow-md h-full">
-      <div className="relative h-full">
-        <AspectRatio ratio={3 / 4} className="bg-gray-100">
-          {/* Use the local image paths */}
-          <div className="h-full w-full flex items-center justify-center">
+      <div className="h-full flex flex-col">
+        {/* Therapist image */}
+        <div className="bg-gray-200 h-32">
+          <AspectRatio ratio={4/3} className="bg-gray-100">
             <img
               src={therapist.gender === "Female" 
                 ? "/femlae.jpg" 
@@ -41,41 +42,39 @@ const TherapistSlide = ({ therapist }: TherapistSlideProps) => {
               alt={`${therapist.name} profile`}
               className="w-full h-full object-cover"
               onError={(e) => {
-                // Fallback to a default image if the specified one fails to load
                 e.currentTarget.src = "https://via.placeholder.com/300x400?text=Therapist";
               }}
             />
-          </div>
-        </AspectRatio>
+          </AspectRatio>
+        </div>
         
-        <div className="absolute bottom-0 left-0 right-0 bg-white/85 backdrop-blur-sm p-4 space-y-2">
+        {/* Therapist info */}
+        <div className="p-4 flex flex-col flex-grow">
           {/* Therapist name */}
-          <h3 className="font-bold text-lg">{therapist.name}</h3>
+          <h3 className="font-bold text-lg mb-2">{therapist.name}</h3>
           
-          {/* Specializations with subtle separators */}
-          <div className="flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+          {/* Specializations with dot separators */}
+          <div className="text-sm text-muted-foreground mb-3">
             {therapist.specializations.map((spec, index) => (
               <React.Fragment key={spec}>
                 <span>{spec}</span>
                 {index < therapist.specializations.length - 1 && (
-                  <Circle className="h-1.5 w-1.5 text-brand-blue/60" />
+                  <span className="mx-1.5">•</span>
                 )}
               </React.Fragment>
             ))}
           </div>
 
-          <div className="flex flex-col gap-1 mt-2 text-sm text-muted-foreground pt-1">
-            {/* Languages spoken */}
-            <div className="flex items-center gap-1.5">
-              <Languages className="h-4 w-4 text-brand-blue" />
-              <span>{languageAbbreviations.join(' | ')}</span>
-            </div>
-            
-            {/* Experience - moved to its own line and using clock icon */}
-            <div className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-brand-blue" />
-              <span>{therapist.yearsExperience}+ years experience</span>
-            </div>
+          {/* Languages spoken */}
+          <div className="flex items-center gap-2 text-sm text-blue-600 mt-auto">
+            <Languages className="h-4 w-4" />
+            <span>{languageAbbreviations.join(' | ')}</span>
+          </div>
+          
+          {/* Experience */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+            <Clock className="h-4 w-4" />
+            <span>{therapist.yearsExperience}+ years experience</span>
           </div>
         </div>
       </div>
