@@ -54,7 +54,7 @@ const TherapistCarouselSection = () => {
           </p>
         </div>
 
-        <div className="relative px-4 md:px-10 max-w-6xl mx-auto">
+        <div className="relative px-4 md:px-10 max-w-5xl mx-auto">
           <Carousel 
             setApi={setApi} 
             className="w-full"
@@ -65,7 +65,7 @@ const TherapistCarouselSection = () => {
           >
             <CarouselContent>
               {mockTherapists.map((therapist, index) => (
-                <CarouselItem key={therapist.id} className="md:basis-1/3 lg:basis-1/5 pl-4 sm:pl-6">
+                <CarouselItem key={therapist.id} className="md:basis-1/2 lg:basis-1/3 pl-4 sm:pl-6">
                   <div className="h-full">
                     <TherapistSlide therapist={therapist} />
                   </div>
