@@ -1,56 +1,89 @@
 
-import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
-import { Loader2 } from "lucide-react";
-import { useEffect } from "react";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import useNeedsPasswordSetup from '@/hooks/useNeedsPasswordSetup';
 
 const DashboardRedirect = () => {
-  const { 
-    user, 
-    profile, 
-    isProfileLoading, 
-    getDashboardRoute, 
-    refreshUserData, 
-    isAuthenticated 
-  } = useAuth();
+  const { isAuthenticated, isLoading, getDashboardRoute } = useAuth();
+  const navigate = useNavigate();
+  const { needsPasswordSetup, loading: checkingPasswordSetup } = useNeedsPasswordSetup();
+  const [error, setError] = useState<string | null>(null);
 
-  // If we don't have a profile yet but do have a user, try to fetch the profile
   useEffect(() => {
-    if (isAuthenticated && user && !profile && !isProfileLoading) {
-      console.log("DashboardRedirect: User authenticated but no profile. Refreshing user data...");
-      refreshUserData();
-    }
-  }, [user, profile, isProfileLoading, refreshUserData, isAuthenticated]);
+    const redirectUser = async () => {
+      try {
+        // Wait until auth is loaded
+        if (isLoading || checkingPasswordSetup) {
+          return;
+        }
 
-  console.log("DashboardRedirect state:", {
-    isAuthenticated,
-    hasUser: !!user,
-    hasProfile: !!profile,
-    isProfileLoading,
-    dashboardRoute: getDashboardRoute(),
-  });
+        // If user is authenticated but needs to set password
+        if (isAuthenticated && needsPasswordSetup) {
+          navigate('/set-password');
+          return;
+        }
 
-  // If not authenticated at all, redirect to login
-  if (!isAuthenticated) {
-    console.log("Not authenticated, redirecting to login");
-    return <Navigate to="/login" replace />;
-  }
+        // If user is authenticated, redirect to their dashboard
+        if (isAuthenticated) {
+          const dashboardRoute = getDashboardRoute();
+          if (dashboardRoute) {
+            navigate(dashboardRoute);
+          } else {
+            setError("Could not determine your dashboard route.");
+          }
+        } else {
+          // If not authenticated, redirect to login
+          navigate('/login');
+        }
+      } catch (err) {
+        console.error('Error in dashboard redirect:', err);
+        setError('An error occurred. Please try again later.');
+      }
+    };
 
-  // If profile is still loading, show loading indicator
-  if (isProfileLoading) {
+    redirectUser();
+  }, [isAuthenticated, isLoading, navigate, getDashboardRoute, needsPasswordSetup, checkingPasswordSetup]);
+
+  // Show loading state
+  if (isLoading || checkingPasswordSetup) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="mt-2 text-muted-foreground">Loading your dashboard...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-blue mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
+        </div>
       </div>
     );
   }
 
-  // Once we have the profile, or determined we won't get one after sufficient time,
-  // redirect to the appropriate dashboard
-  const route = getDashboardRoute();
-  console.log(`Redirecting to ${route}`);
-  return <Navigate to={route} replace />;
+  // Show error state if there is an error
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-500 text-xl">Error</div>
+          <p className="mt-2 text-gray-600">{error}</p>
+          <button 
+            onClick={() => navigate('/login')}
+            className="mt-4 px-4 py-2 bg-brand-blue text-white rounded hover:bg-brand-blue/90"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Default loading state
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-blue mx-auto"></div>
+        <p className="mt-4 text-gray-600">Redirecting...</p>
+      </div>
+    </div>
+  );
 };
 
 export default DashboardRedirect;

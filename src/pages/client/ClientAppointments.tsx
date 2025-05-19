@@ -1,166 +1,376 @@
 
-import React, { useEffect, useState } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-import { Calendar, Clock } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState } from "react";
+import { format, parseISO, isThisMonth, isPast, addMonths, isAfter } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { Calendar, Clock, Video, Mic, MoreVertical } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 
-interface Appointment {
-  id: string;
-  start_time: string;
-  end_time: string;
-  status: string;
-  notes?: string;
-  therapist: {
-    first_name: string;
-    last_name: string;
+// Mock appointment data
+const generateMockAppointments = () => {
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+
+  // Helper to create appointment dates
+  const createDate = (monthOffset, day, hour, minute) => {
+    const date = new Date(thisYear, thisMonth - monthOffset, day);
+    date.setHours(hour, minute);
+    return date;
   };
-}
+
+  // Create appointments: 4 this month, 2 last month, 2 the month before
+  return [
+    // This month - 4 appointments
+    {
+      id: 1,
+      startTime: createDate(0, 10, 10, 0),
+      endTime: createDate(0, 10, 11, 0),
+      title: "50min video session with Dr. Emma Taylor",
+      type: "Video",
+      status: "upcoming",
+      participants: [
+        { 
+          name: "Dr. Emma Taylor", 
+          avatar: "/placeholder.svg",
+          role: "Therapist"
+        },
+        { 
+          name: "John Doe", 
+          avatar: "/placeholder.svg",
+          role: "Client"
+        }
+      ]
+    },
+    {
+      id: 2,
+      startTime: createDate(0, 15, 14, 30),
+      endTime: createDate(0, 15, 15, 20),
+      title: "50min video session with Dr. Michael Johnson",
+      type: "Video",
+      status: "upcoming",
+      participants: [
+        { 
+          name: "Dr. Michael Johnson", 
+          avatar: "/male.jpg",
+          role: "Therapist"
+        },
+        { 
+          name: "John Doe", 
+          avatar: "/placeholder.svg",
+          role: "Client"
+        }
+      ]
+    },
+    {
+      id: 3,
+      startTime: createDate(0, 20, 11, 0),
+      endTime: createDate(0, 20, 12, 0),
+      title: "60min audio session with Dr. Sarah Williams",
+      type: "Audio",
+      status: "upcoming",
+      participants: [
+        { 
+          name: "Dr. Sarah Williams", 
+          avatar: "/femlae.jpg", // Note: there's a typo in the file name
+          role: "Therapist"
+        },
+        { 
+          name: "John Doe", 
+          avatar: "/placeholder.svg",
+          role: "Client"
+        }
+      ]
+    },
+    {
+      id: 4,
+      startTime: createDate(0, 25, 16, 0),
+      endTime: createDate(0, 25, 16, 50),
+      title: "50min video session with Dr. Emma Taylor",
+      type: "Video",
+      status: "cancelled",
+      participants: [
+        { 
+          name: "Dr. Emma Taylor", 
+          avatar: "/placeholder.svg",
+          role: "Therapist"
+        },
+        { 
+          name: "John Doe", 
+          avatar: "/placeholder.svg",
+          role: "Client"
+        }
+      ]
+    },
+
+    // Last month - 2 appointments
+    {
+      id: 5,
+      startTime: createDate(1, 12, 9, 0),
+      endTime: createDate(1, 12, 10, 0),
+      title: "60min video session with Dr. Michael Johnson",
+      type: "Video",
+      status: "completed",
+      participants: [
+        { 
+          name: "Dr. Michael Johnson", 
+          avatar: "/male.jpg",
+          role: "Therapist"
+        },
+        { 
+          name: "John Doe", 
+          avatar: "/placeholder.svg",
+          role: "Client"
+        }
+      ]
+    },
+    {
+      id: 6,
+      startTime: createDate(1, 25, 13, 0),
+      endTime: createDate(1, 25, 14, 0),
+      title: "60min audio session with Dr. Sarah Williams",
+      type: "Audio",
+      status: "completed",
+      participants: [
+        { 
+          name: "Dr. Sarah Williams", 
+          avatar: "/femlae.jpg", // Note: there's a typo in the file name
+          role: "Therapist"
+        },
+        { 
+          name: "John Doe", 
+          avatar: "/placeholder.svg",
+          role: "Client"
+        }
+      ]
+    },
+
+    // Two months ago - 2 appointments
+    {
+      id: 7,
+      startTime: createDate(2, 5, 10, 0),
+      endTime: createDate(2, 5, 11, 0),
+      title: "60min video session with Dr. Emma Taylor",
+      type: "Video",
+      status: "completed",
+      participants: [
+        { 
+          name: "Dr. Emma Taylor", 
+          avatar: "/placeholder.svg",
+          role: "Therapist"
+        },
+        { 
+          name: "John Doe", 
+          avatar: "/placeholder.svg",
+          role: "Client"
+        }
+      ]
+    },
+    {
+      id: 8,
+      startTime: createDate(2, 18, 15, 0),
+      endTime: createDate(2, 18, 16, 0),
+      title: "60min audio session with Dr. Michael Johnson",
+      type: "Audio",
+      status: "completed",
+      participants: [
+        { 
+          name: "Dr. Michael Johnson", 
+          avatar: "/male.jpg",
+          role: "Therapist"
+        },
+        { 
+          name: "John Doe", 
+          avatar: "/placeholder.svg",
+          role: "Client"
+        }
+      ]
+    },
+  ];
+};
 
 const ClientAppointments = () => {
-  const { profile } = useAuth();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [appointments] = useState(generateMockAppointments());
+  const [activeTab, setActiveTab] = useState("upcoming");
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("appointments")
-          .select(`
-            id,
-            start_time,
-            end_time,
-            status,
-            notes,
-            therapist:therapist_id(
-              profiles(first_name, last_name)
-            )
-          `)
-          .eq("client_id", profile?.id)
-          .order("start_time", { ascending: false });
+  // Filter appointments based on active tab
+  const filteredAppointments = appointments.filter(appointment => {
+    if (activeTab === "upcoming") {
+      return appointment.status === "upcoming";
+    } else if (activeTab === "past") {
+      return appointment.status === "completed";
+    } else if (activeTab === "cancelled") {
+      return appointment.status === "cancelled";
+    }
+    return true;
+  });
 
-        if (error) throw error;
-        
-        // Transform the data to match the expected Appointment type
-        if (data) {
-          const formattedData = data.map(item => ({
-            ...item,
-            therapist: {
-              first_name: item.therapist?.profiles?.first_name || '',
-              last_name: item.therapist?.profiles?.last_name || ''
-            }
-          }));
-          
-          setAppointments(formattedData);
-        }
-      } catch (error) {
-        console.error("Error fetching appointments:", error);
-        setAppointments([]);
-      } finally {
-        setLoading(false);
+  // Group appointments by month
+  const groupByMonth = (appointments) => {
+    const grouped = {};
+    
+    appointments.forEach(appointment => {
+      const monthYear = format(appointment.startTime, 'MMMM yyyy');
+      if (!grouped[monthYear]) {
+        grouped[monthYear] = [];
       }
-    };
-
-    if (profile?.id) {
-      fetchAppointments();
-    }
-  }, [profile?.id]);
-
-  const formatAppointmentTime = (startTime: string, endTime: string) => {
-    const start = new Date(startTime);
-    const end = new Date(endTime);
+      grouped[monthYear].push(appointment);
+    });
     
-    const dateStr = format(start, "EEEE, MMMM d, yyyy");
-    const timeStr = `${format(start, "h:mm a")} - ${format(end, "h:mm a")}`;
-    
-    return { dateStr, timeStr };
+    // Sort months chronologically
+    return Object.keys(grouped)
+      .sort((a, b) => {
+        const dateA = parseISO(`01 ${a}`);
+        const dateB = parseISO(`01 ${b}`);
+        return dateB - dateA; // Most recent first
+      })
+      .map(month => ({
+        month,
+        appointments: grouped[month].sort((a, b) => a.startTime - b.startTime)
+      }));
   };
 
-  const getStatusBadge = (status: string) => {
-    switch(status) {
-      case "scheduled":
-        return <Badge className="bg-blue-500">Scheduled</Badge>;
-      case "completed":
-        return <Badge className="bg-green-500">Completed</Badge>;
-      case "cancelled":
-        return <Badge className="bg-red-500">Cancelled</Badge>;
-      default:
-        return <Badge>{status}</Badge>;
-    }
-  };
-
-  const isPastAppointment = (startTime: string) => {
-    return new Date(startTime) < new Date();
-  };
-
+  const groupedAppointments = groupByMonth(filteredAppointments);
+  
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Appointments</h1>
-        <p className="text-muted-foreground mt-1">
-          View and manage all your therapy appointments
-        </p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">My Appointments</h1>
+          <p className="text-muted-foreground mt-1">
+            View and manage your therapy sessions
+          </p>
+        </div>
       </div>
-
-      {loading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="overflow-hidden">
-              <div className="p-6 space-y-2">
-                <Skeleton className="h-5 w-1/4" />
-                <Skeleton className="h-4 w-1/3" />
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-4 w-1/4" />
+      
+      <div className="border-b pb-2">
+        <ToggleGroup type="single" value={activeTab} onValueChange={(value) => value && setActiveTab(value)} className="flex justify-start">
+          <ToggleGroupItem value="upcoming" className="rounded-full data-[state=on]:bg-brand-blue data-[state=on]:text-white">
+            Upcoming
+          </ToggleGroupItem>
+          <ToggleGroupItem value="past" className="rounded-full data-[state=on]:bg-brand-blue data-[state=on]:text-white">
+            Past
+          </ToggleGroupItem>
+          <ToggleGroupItem value="cancelled" className="rounded-full data-[state=on]:bg-brand-blue data-[state=on]:text-white">
+            Cancelled
+          </ToggleGroupItem>
+        </ToggleGroup>
+      </div>
+      
+      {groupedAppointments.length > 0 ? (
+        <div className="space-y-8">
+          {groupedAppointments.map(({month, appointments}) => (
+            <div key={month} className="space-y-4">
+              <h2 className="text-xl font-semibold">{month}</h2>
+              
+              <div className="space-y-4">
+                {appointments.map((appointment) => {
+                  const isVideoSession = appointment.type === "Video";
+                  
+                  return (
+                    <Card key={appointment.id} className="overflow-hidden">
+                      <div className="flex flex-col sm:flex-row">
+                        {/* Date column */}
+                        <div className="bg-gray-50 p-4 text-center sm:w-24 flex flex-row sm:flex-col justify-center items-center">
+                          <div className="text-brand-blue font-medium">
+                            {format(appointment.startTime, 'EEE')}
+                          </div>
+                          <div className="text-3xl font-bold ml-2 sm:ml-0">
+                            {format(appointment.startTime, 'd')}
+                          </div>
+                        </div>
+                        
+                        {/* Appointment details */}
+                        <div className="flex-1 p-4 flex flex-col sm:flex-row justify-between">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-sm">
+                              <Clock className="h-4 w-4 text-muted-foreground" />
+                              <span>
+                                {format(appointment.startTime, 'h:mm a')} - {format(appointment.endTime, 'h:mm a')}
+                              </span>
+                            </div>
+                            
+                            <h3 className="font-medium">{appointment.title}</h3>
+                            
+                            <div className="flex items-center gap-2">
+                              {isVideoSession ? (
+                                <Badge variant="outline" className="flex items-center gap-1 bg-brand-blue/10 text-brand-blue border-brand-blue/20">
+                                  <Video className="h-3 w-3" />
+                                  <span>Video</span>
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline" className="flex items-center gap-1 bg-brand-blue/10 text-brand-blue border-brand-blue/20">
+                                  <Mic className="h-3 w-3" />
+                                  <span>Audio</span>
+                                </Badge>
+                              )}
+                              
+                              {appointment.status === "cancelled" && (
+                                <Badge variant="outline" className="bg-red-50 text-red-500 border-red-100">
+                                  Cancelled
+                                </Badge>
+                              )}
+                            </div>
+                            
+                            <div className="flex -space-x-2 mt-1">
+                              {appointment.participants.map((participant, i) => (
+                                <Avatar key={i} className="border-2 border-white h-8 w-8">
+                                  <AvatarImage src={participant.avatar} alt={participant.name} />
+                                  <AvatarFallback>{participant.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          {/* Actions dropdown */}
+                          {appointment.status !== "cancelled" && appointment.status !== "completed" && (
+                            <div className="mt-4 sm:mt-0">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreVertical className="h-4 w-4" />
+                                    <span className="sr-only">Actions</span>
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem>
+                                    Reschedule appointment
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem className="text-red-500">
+                                    Cancel appointment
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
               </div>
-            </Card>
+            </div>
           ))}
         </div>
-      ) : appointments.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center py-6">
-              <h3 className="text-lg font-medium mb-2">No appointments found</h3>
-              <p className="text-muted-foreground">
-                You don't have any appointments scheduled yet.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       ) : (
-        <div className="space-y-4">
-          {appointments.map((appointment) => (
-            <Card key={appointment.id} className={`overflow-hidden ${isPastAppointment(appointment.start_time) ? 'bg-gray-50' : ''}`}>
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-lg">
-                    Session with Dr. {appointment.therapist.first_name} {appointment.therapist.last_name}
-                  </h3>
-                  {getStatusBadge(appointment.status)}
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{formatAppointmentTime(appointment.start_time, appointment.end_time).dateStr}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>{formatAppointmentTime(appointment.start_time, appointment.end_time).timeStr}</span>
-                  </div>
-                </div>
-
-                {appointment.notes && (
-                  <div className="mt-3 pt-3 border-t text-sm text-muted-foreground">
-                    <p>{appointment.notes}</p>
-                  </div>
-                )}
-              </div>
-            </Card>
-          ))}
+        <div className="text-center py-10">
+          <h3 className="text-lg font-medium mb-2">No appointments found</h3>
+          <p className="text-muted-foreground">
+            {activeTab === "upcoming" 
+              ? "You don't have any upcoming appointments."
+              : activeTab === "past"
+                ? "You don't have any past appointments."
+                : "You don't have any cancelled appointments."}
+          </p>
         </div>
       )}
     </div>
