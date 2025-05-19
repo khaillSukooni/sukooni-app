@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import Logo from "@/components/ui/Logo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
 
 const passwordSchema = z.object({
   password: z
@@ -39,51 +40,84 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [hasToken, setHasToken] = useState(false);
   const [isSetPassword, setIsSetPassword] = useState(false);
   const [tokenError, setTokenError] = useState<string | null>(null);
 
+  // Check if we're on this page from an invite link or password reset
   useEffect(() => {
     const checkTokenAndType = async () => {
-      // Check if the URL contains the access_token parameter from Supabase
-      const hash = window.location.hash;
-      
-      if (hash && hash.includes("access_token")) {
-        setHasToken(true);
-        
-        // Determine if this is a password reset or initial password setup
-        // If coming from state (DashboardRedirect sent the user here), it's a password setup
-        const isPasswordSetup = location.state?.isSetPassword === true;
-        setIsSetPassword(isPasswordSetup);
+      setIsLoading(true);
+      console.log("Checking token type");
+      console.log("Current URL hash:", window.location.hash);
+      console.log("Location state:", location.state);
 
-        // For users who need to set a password, we don't need to validate the token the same way
-        if (!isPasswordSetup) {
-          try {
-            // Verify token is valid by attempting to get user session
-            const { data, error } = await supabase.auth.getSession();
-            if (error) {
-              throw error;
-            }
+      // Check if the URL contains hash params from Supabase
+      const hash = window.location.hash;
+      const isInviteFlow = hash && hash.includes("type=invite");
+      const isResetFlow = hash && hash.includes("type=recovery");
+      const hasAccessToken = hash && hash.includes("access_token");
+      const comesFromState = location.state?.isSetPassword === true;
+      
+      console.log({
+        isInviteFlow,
+        isResetFlow,
+        hasAccessToken,
+        comesFromState
+      });
+
+      // Process the auth session from URL if there's an access token
+      if (hasAccessToken) {
+        try {
+          // Get session from the hash params
+          const { data, error } = await supabase.auth.getSession();
+          
+          if (error) {
+            console.error("Auth session error:", error);
+            setTokenError(error.message || "Error validating authentication token");
+            setHasToken(false);
+            setIsLoading(false);
+            return;
+          }
+          
+          if (data.session) {
+            console.log("Valid session found from URL");
+            setHasToken(true);
             
-            // If no session found despite having an access_token in URL, the token is invalid
-            if (!data.session) {
-              setTokenError("Invalid or expired password reset link.");
-              setHasToken(false);
+            // Determine if this is password set or reset
+            if (isInviteFlow) {
+              setIsSetPassword(true);
+              console.log("Invite flow detected from URL");
+            } else {
+              setIsSetPassword(false);
+              console.log("Recovery flow detected from URL");
             }
-          } catch (error: any) {
-            console.error("Token validation error:", error);
-            setTokenError(error.message || "Invalid or expired password reset link.");
+          } else {
+            console.error("No session found despite access token in URL");
+            setTokenError("Invalid or expired authentication link");
             setHasToken(false);
           }
+        } catch (error: any) {
+          console.error("Token validation error:", error);
+          setTokenError(error.message || "An error occurred while validating your session");
+          setHasToken(false);
         }
-      } else if (location.state?.isSetPassword === true) {
-        // User was redirected here programmatically with isSetPassword state
+      } 
+      // Handle case where user was redirected programmatically
+      else if (comesFromState) {
+        console.log("User redirected here by app logic due to password setup need");
         setHasToken(true);
         setIsSetPassword(true);
-      } else {
-        setTokenError("Invalid or expired password reset link.");
+      } 
+      // No token or state passed, we shouldn't be on this page
+      else {
+        console.log("No token or state found, invalid access");
+        setTokenError("Invalid access. Please request a password reset or use a valid invitation link.");
         setHasToken(false);
       }
+      
+      setIsLoading(false);
     };
 
     checkTokenAndType();
@@ -100,6 +134,8 @@ const ResetPassword = () => {
   const onSubmit = async (values: PasswordFormValues) => {
     try {
       setIsSubmitting(true);
+      console.log("Updating password");
+      
       const { error } = await supabase.auth.updateUser({
         password: values.password
       });
@@ -112,13 +148,28 @@ const ResetPassword = () => {
         ? "Password has been set successfully!" 
         : "Password has been reset successfully!");
       
-      navigate("/dashboard");
+      // Short delay before redirect to ensure the toast is visible
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500);
     } catch (error: any) {
+      console.error("Password update error:", error);
       toast.error(error.message || "An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center p-4">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Verifying your session...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!hasToken) {
     return (

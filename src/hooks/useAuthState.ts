@@ -47,11 +47,21 @@ export function useAuthState() {
 
     // Check if user was invited and has never set a password
     // For Supabase, we'll use the metadata to check this
-    // Users invited via email typically have no password set
-    const needsSetup = currentUser.app_metadata?.provider === 'email' && 
-                       !currentUser.app_metadata?.password_hash;
+    const isInvited = currentUser.email_confirmed_at && !currentUser.last_sign_in_at;
+    const noPasswordHash = currentUser.app_metadata?.provider === 'email' && 
+                          !currentUser.app_metadata?.password_hash;
+    const needsSetup = isInvited || noPasswordHash;
 
-    console.log("User needs password setup:", needsSetup);
+    console.log("Password setup check:", {
+      isInvited,
+      noPasswordHash,
+      needsSetup,
+      provider: currentUser.app_metadata?.provider,
+      hasPasswordHash: !!currentUser.app_metadata?.password_hash,
+      email_confirmed_at: currentUser.email_confirmed_at,
+      last_sign_in_at: currentUser.last_sign_in_at
+    });
+
     setNeedsPasswordSetup(needsSetup);
     return needsSetup;
   }, []);
@@ -170,9 +180,9 @@ export function useAuthState() {
           } finally {
             setIsProfileLoading(false);
           }
-        } else {
-          setIsLoading(false);
-        }
+        } 
+        
+        setIsLoading(false);
       } catch (error) {
         console.error("Error checking initial session:", error);
         setIsLoading(false);
