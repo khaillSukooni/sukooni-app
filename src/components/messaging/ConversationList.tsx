@@ -8,12 +8,14 @@ interface ConversationListProps {
   conversations: Conversation[];
   selectedConversationId: string | undefined;
   onSelectConversation: (conversation: Conversation) => void;
+  variant?: "standard" | "compact";
 }
 
 const ConversationList: React.FC<ConversationListProps> = ({
   conversations,
   selectedConversationId,
   onSelectConversation,
+  variant = "standard"
 }) => {
   // Format timestamp to show different formats based on how recent
   const formatMessageTimestamp = (timestamp: string) => {
@@ -43,12 +45,15 @@ const ConversationList: React.FC<ConversationListProps> = ({
           key={conversation.id}
           className={`p-4 cursor-pointer hover:bg-muted/50 ${
             selectedConversationId === conversation.id ? "bg-muted" : ""
-          }`}
+          } ${variant === "compact" ? "py-2" : ""}`}
           onClick={() => onSelectConversation(conversation)}
         >
           <div className="flex items-start gap-3">
-            <Avatar className="h-10 w-10 flex-shrink-0">
-              <AvatarFallback className="bg-brand-blue text-white">
+            <Avatar className={`flex-shrink-0 ${variant === "compact" ? "h-8 w-8" : "h-10 w-10"}`}>
+              <AvatarFallback className={
+                conversation.participantRole === "therapist" ? "bg-brand-blue text-white" : 
+                "bg-brand-yellow text-brand-dark-blue"
+              }>
                 {conversation.participantName.split(" ").map(n => n[0]).join("")}
               </AvatarFallback>
             </Avatar>
