@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { format, parseISO, isThisMonth, isPast, addMonths, isAfter } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -289,8 +290,8 @@ const ClientAppointments = () => {
                         </div>
                         
                         {/* Appointment details */}
-                        <div className="flex-1 p-4 flex flex-col sm:flex-row justify-between">
-                          <div className="space-y-2">
+                        <div className="flex-1 p-4">
+                          <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2 text-sm">
                               <Clock className="h-4 w-4 text-muted-foreground" />
                               <span>
@@ -298,9 +299,34 @@ const ClientAppointments = () => {
                               </span>
                             </div>
                             
-                            <h3 className="font-medium">{appointment.title}</h3>
-                            
-                            <div className="flex items-center gap-2">
+                            {/* Actions dropdown - Moved to the top right */}
+                            {appointment.status !== "cancelled" && appointment.status !== "completed" && (
+                              <div className="-mt-1 -mr-2">
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon">
+                                      <MoreVertical className="h-4 w-4" />
+                                      <span className="sr-only">Actions</span>
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem>
+                                      Reschedule appointment
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem className="text-red-500">
+                                      Cancel appointment
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
+                            )}
+                          </div>
+                          
+                          <h3 className="font-medium mt-1">{appointment.title}</h3>
+                          
+                          {/* Badge and avatars on the same line */}
+                          <div className="flex items-center justify-between mt-2">
+                            <div>
                               {isVideoSession ? (
                                 <Badge variant="outline" className="flex items-center gap-1 bg-brand-blue/10 text-brand-blue border-brand-blue/20">
                                   <Video className="h-3 w-3" />
@@ -314,43 +340,21 @@ const ClientAppointments = () => {
                               )}
                               
                               {appointment.status === "cancelled" && (
-                                <Badge variant="outline" className="bg-red-50 text-red-500 border-red-100">
+                                <Badge variant="outline" className="ml-2 bg-red-50 text-red-500 border-red-100">
                                   Cancelled
                                 </Badge>
                               )}
                             </div>
                             
-                            <div className="flex -space-x-2 mt-1">
+                            <div className="flex -space-x-2">
                               {appointment.participants.map((participant, i) => (
-                                <Avatar key={i} className="border-2 border-white h-8 w-8">
+                                <Avatar key={i} className="border-2 border-white h-7 w-7">
                                   <AvatarImage src={participant.avatar} alt={participant.name} />
                                   <AvatarFallback>{participant.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
                               ))}
                             </div>
                           </div>
-                          
-                          {/* Actions dropdown */}
-                          {appointment.status !== "cancelled" && appointment.status !== "completed" && (
-                            <div className="mt-4 sm:mt-0">
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <MoreVertical className="h-4 w-4" />
-                                    <span className="sr-only">Actions</span>
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem>
-                                    Reschedule appointment
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem className="text-red-500">
-                                    Cancel appointment
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
-                          )}
                         </div>
                       </div>
                     </Card>
