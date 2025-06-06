@@ -125,6 +125,57 @@ export type Database = {
         }
         Relationships: []
       }
+      therapist_invitations: {
+        Row: {
+          country_of_residence: string
+          created_at: string
+          date_of_birth: string
+          email: string
+          expires_at: string
+          first_name: string
+          gender: string
+          id: string
+          invitation_token: string
+          invited_by: string
+          last_name: string
+          nationality: string
+          status: Database["public"]["Enums"]["invitation_status"]
+          updated_at: string
+        }
+        Insert: {
+          country_of_residence: string
+          created_at?: string
+          date_of_birth: string
+          email: string
+          expires_at?: string
+          first_name: string
+          gender: string
+          id?: string
+          invitation_token?: string
+          invited_by: string
+          last_name: string
+          nationality: string
+          status?: Database["public"]["Enums"]["invitation_status"]
+          updated_at?: string
+        }
+        Update: {
+          country_of_residence?: string
+          created_at?: string
+          date_of_birth?: string
+          email?: string
+          expires_at?: string
+          first_name?: string
+          gender?: string
+          id?: string
+          invitation_token?: string
+          invited_by?: string
+          last_name?: string
+          nationality?: string
+          status?: Database["public"]["Enums"]["invitation_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       therapists: {
         Row: {
           availability: Json | null
@@ -172,8 +223,13 @@ export type Database = {
         Args: { user_id: string }
         Returns: string
       }
+      is_invitation_valid: {
+        Args: { token_param: string }
+        Returns: boolean
+      }
     }
     Enums: {
+      invitation_status: "pending" | "accepted" | "expired" | "revoked"
       user_role: "client" | "therapist" | "admin"
     }
     CompositeTypes: {
@@ -290,6 +346,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      invitation_status: ["pending", "accepted", "expired", "revoked"],
       user_role: ["client", "therapist", "admin"],
     },
   },
