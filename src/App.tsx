@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +23,13 @@ import ClientProfile from "./pages/client/ClientProfile";
 import ClientSettings from "./pages/client/ClientSettings";
 import AuthGuard from "./components/auth/AuthGuard";
 import DashboardRedirect from "./components/auth/DashboardRedirect";
+
+// Admin imports
+import AdminDashboardLayout from "./components/layout/AdminDashboardLayout";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminAppointments from "./pages/admin/AdminAppointments";
+import AdminClients from "./pages/admin/AdminClients";
+import AdminTherapists from "./pages/admin/AdminTherapists";
 
 const queryClient = new QueryClient();
 
