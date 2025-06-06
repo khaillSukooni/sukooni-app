@@ -80,9 +80,14 @@ const App = () => (
             {/* Admin-specific routes */}
             <Route path="/dashboard/admin" element={
               <ProtectedRoute allowedRoles={["admin"]}>
-                <NotFound />
+                <AdminDashboardLayout />
               </ProtectedRoute>
-            } />
+            }>
+              <Route index element={<AdminDashboard />} />
+              <Route path="appointments" element={<AdminAppointments />} />
+              <Route path="clients" element={<AdminClients />} />
+              <Route path="therapists" element={<AdminTherapists />} />
+            </Route>
             
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
