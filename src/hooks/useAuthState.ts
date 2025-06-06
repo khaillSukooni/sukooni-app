@@ -14,6 +14,12 @@ export function useAuthState() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isProfileLoading, setIsProfileLoading] = useState(false);
 
+  // Check if we're in a password reset flow
+  const isPasswordResetFlow = () => {
+    return window.location.pathname === '/reset-password' && 
+           window.location.hash.includes('type=recovery');
+  };
+
   // Fetch user profile when we have a user ID
   const fetchUserProfile = useCallback(async (userId: string) => {
     try {
@@ -77,6 +83,13 @@ export function useAuthState() {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log("Auth state changed:", event, newSession ? "Session exists" : "No session");
       
+      // If we're in a password reset flow, don't update the auth state
+      // The reset password component will handle authentication temporarily
+      if (isPasswordResetFlow()) {
+        console.log("In password reset flow, ignoring auth state change");
+        return;
+      }
+      
       // Synchronously update basic auth state
       setSession(newSession);
       setUser(newSession?.user ?? null);
@@ -117,6 +130,13 @@ export function useAuthState() {
     // Check initial session
     const checkInitialSession = async () => {
       try {
+        // If we're in password reset flow, don't check for existing session
+        if (isPasswordResetFlow()) {
+          console.log("In password reset flow, skipping initial session check");
+          setIsLoading(false);
+          return;
+        }
+
         const { data: { session: initialSession } } = await supabase.auth.getSession();
         console.log("Initial session check:", initialSession ? "Session exists" : "No session");
         

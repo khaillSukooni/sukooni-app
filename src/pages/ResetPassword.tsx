@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -38,16 +37,60 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasResetToken, setHasResetToken] = useState(false);
+  const [isValidating, setIsValidating] = useState(true);
 
   useEffect(() => {
-    // Check if the URL contains the access_token parameter from Supabase
-    const hash = window.location.hash;
-    if (hash && hash.includes("access_token")) {
-      setHasResetToken(true);
-    } else {
-      toast.error("Invalid or expired password reset link.");
-      navigate("/forgot-password");
-    }
+    const validateResetToken = async () => {
+      // Check if the URL contains the access_token parameter from Supabase
+      const hash = window.location.hash;
+      
+      if (!hash || !hash.includes("access_token")) {
+        toast.error("Invalid or expired password reset link.");
+        navigate("/forgot-password");
+        return;
+      }
+
+      // Extract the hash parameters
+      const hashParams = new URLSearchParams(hash.substring(1));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      const type = hashParams.get("type");
+
+      if (!accessToken || !refreshToken || type !== "recovery") {
+        toast.error("Invalid password reset link.");
+        navigate("/forgot-password");
+        return;
+      }
+
+      // Validate the session but don't set it in the auth context yet
+      try {
+        const { data, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        });
+
+        if (error) {
+          throw error;
+        }
+
+        // Immediately sign out to prevent auto-login but keep the tokens for password reset
+        await supabase.auth.signOut();
+        
+        // Store tokens temporarily for password reset
+        sessionStorage.setItem('reset_access_token', accessToken);
+        sessionStorage.setItem('reset_refresh_token', refreshToken);
+        
+        setHasResetToken(true);
+      } catch (error: any) {
+        console.error("Token validation error:", error);
+        toast.error("Invalid or expired password reset link.");
+        navigate("/forgot-password");
+      } finally {
+        setIsValidating(false);
+      }
+    };
+
+    validateResetToken();
   }, [navigate]);
 
   const form = useForm<ResetPasswordFormValues>({
@@ -61,25 +104,77 @@ const ResetPassword = () => {
   const onSubmit = async (values: ResetPasswordFormValues) => {
     try {
       setIsSubmitting(true);
-      const { error } = await supabase.auth.updateUser({
+      
+      // Get the stored tokens
+      const accessToken = sessionStorage.getItem('reset_access_token');
+      const refreshToken = sessionStorage.getItem('reset_refresh_token');
+      
+      if (!accessToken || !refreshToken) {
+        throw new Error("Reset session expired. Please request a new password reset link.");
+      }
+
+      // Temporarily set the session to update the password
+      const { error: sessionError } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+
+      if (sessionError) {
+        throw sessionError;
+      }
+
+      // Update the password
+      const { error: updateError } = await supabase.auth.updateUser({
         password: values.password
       });
-      
-      if (error) {
-        throw error;
+
+      if (updateError) {
+        throw updateError;
       }
+
+      // Sign out immediately after password update
+      await supabase.auth.signOut();
       
-      toast.success("Password has been reset successfully!");
+      // Clean up stored tokens
+      sessionStorage.removeItem('reset_access_token');
+      sessionStorage.removeItem('reset_refresh_token');
+      
+      toast.success("Password has been reset successfully! Please log in with your new password.");
       navigate("/login");
     } catch (error: any) {
+      console.error("Password reset error:", error);
       toast.error(error.message || "An error occurred. Please try again.");
+      
+      // Clean up on error
+      sessionStorage.removeItem('reset_access_token');
+      sessionStorage.removeItem('reset_refresh_token');
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  if (isValidating) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Validating reset token...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!hasResetToken) {
-    return <div className="flex h-screen items-center justify-center">Validating reset token...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-center">
+          <p className="text-destructive">Invalid or expired reset link</p>
+          <Link to="/forgot-password" className="text-primary hover:underline">
+            Request a new password reset
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -135,6 +230,10 @@ const ResetPassword = () => {
               </Button>
             </form>
           </Form>
+          
+          <div className="mt-4 text-center text-sm text-muted-foreground">
+            After setting your new password, you'll need to log in again.
+          </div>
         </div>
       </div>
     </div>
