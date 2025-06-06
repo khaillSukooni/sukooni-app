@@ -1,6 +1,5 @@
-
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Bell, ChevronDown, Menu } from "lucide-react";
 
 import {
@@ -50,7 +49,9 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <Menu size={20} />
           </button>
           <div className="hidden md:block">
-            <Logo />
+            <Link to="/">
+              <Logo />
+            </Link>
           </div>
         </div>
         

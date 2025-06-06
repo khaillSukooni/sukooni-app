@@ -1,6 +1,5 @@
-
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { LogOut } from "lucide-react";
 
 import {
@@ -38,7 +37,9 @@ const MobileSidebar: React.FC<MobileSidebarProps> = ({
       <SheetContent side="left" className="w-64 sm:max-w-none p-0">
         <div className="flex flex-col h-full">
           <div className="p-4 border-b">
-            <Logo />
+            <Link to="/" onClick={() => setIsOpen(false)}>
+              <Logo />
+            </Link>
           </div>
           <nav className="flex-1 p-2 space-y-1">
             {navigationItems.map((item) => (
