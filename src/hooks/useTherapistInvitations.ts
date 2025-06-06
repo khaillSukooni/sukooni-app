@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CreateTherapistInvitationRequest, TherapistInvitation } from "@/lib/types/invitation";
@@ -7,14 +6,57 @@ import { toast } from "@/hooks/use-toast";
 export const useTherapistInvitations = () => {
   const [isLoading, setIsLoading] = useState(false);
 
+  const checkEmailExists = useCallback(async (email: string): Promise<boolean> => {
+    try {
+      // Check if email exists in profiles table
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("email", email.toLowerCase())
+        .maybeSingle();
+
+      if (profileError && profileError.code !== 'PGRST116') {
+        throw profileError;
+      }
+
+      if (profileData) {
+        return true;
+      }
+
+      // Check if email exists in pending invitations
+      const { data: invitationData, error: invitationError } = await supabase
+        .from("therapist_invitations")
+        .select("id")
+        .eq("email", email.toLowerCase())
+        .eq("status", "pending")
+        .maybeSingle();
+
+      if (invitationError && invitationError.code !== 'PGRST116') {
+        throw invitationError;
+      }
+
+      return !!invitationData;
+    } catch (error: any) {
+      console.error("Error checking email existence:", error);
+      throw error;
+    }
+  }, []);
+
   const createInvitation = useCallback(async (data: CreateTherapistInvitationRequest) => {
     setIsLoading(true);
     try {
+      // Check if email already exists
+      const emailExists = await checkEmailExists(data.email);
+      if (emailExists) {
+        throw new Error("This email is already registered or has a pending invitation");
+      }
+
       // Insert the invitation into the database
       const { data: invitation, error: insertError } = await supabase
         .from("therapist_invitations")
         .insert([{
           ...data,
+          email: data.email.toLowerCase(),
           invited_by: (await supabase.auth.getUser()).data.user?.id,
         }])
         .select()
@@ -56,7 +98,7 @@ export const useTherapistInvitations = () => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [checkEmailExists]);
 
   const getInvitations = useCallback(async (): Promise<TherapistInvitation[]> => {
     try {

@@ -5,8 +5,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -23,10 +21,17 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Combobox } from "@/components/ui/combobox";
 import { CreateTherapistInvitationRequest } from "@/lib/types/invitation";
+import { countries } from "@/lib/data/countries";
+import { nationalities } from "@/lib/data/nationalities";
 
 const therapistInvitationSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address")
+    .transform(val => val.toLowerCase()),
   first_name: z.string().min(1, "First name is required"),
   last_name: z.string().min(1, "Last name is required"),
   gender: z.enum(["male", "female", "other"], {
@@ -64,6 +69,20 @@ const AddTherapistForm: React.FC<AddTherapistFormProps> = ({
   const handleSubmit = async (data: CreateTherapistInvitationRequest) => {
     await onSubmit(data);
   };
+
+  // Transform nationalities for combobox
+  const nationalityOptions = nationalities.map(nationality => ({
+    value: nationality.adjective,
+    label: nationality.adjective,
+    icon: nationality.flag
+  }));
+
+  // Transform countries for combobox
+  const countryOptions = countries.map(country => ({
+    value: country.name,
+    label: country.name,
+    icon: country.flag
+  }));
 
   return (
     <Card className="w-full max-w-2xl mx-auto">
@@ -164,7 +183,14 @@ const AddTherapistForm: React.FC<AddTherapistFormProps> = ({
                   <FormItem>
                     <FormLabel>Nationality</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter nationality" {...field} />
+                      <Combobox
+                        options={nationalityOptions}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select nationality"
+                        searchPlaceholder="Search nationalities..."
+                        emptyText="No nationality found."
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -178,7 +204,14 @@ const AddTherapistForm: React.FC<AddTherapistFormProps> = ({
                   <FormItem>
                     <FormLabel>Country of Residence</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter country of residence" {...field} />
+                      <Combobox
+                        options={countryOptions}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        placeholder="Select country"
+                        searchPlaceholder="Search countries..."
+                        emptyText="No country found."
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
