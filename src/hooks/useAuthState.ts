@@ -83,10 +83,10 @@ export function useAuthState() {
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
       console.log("Auth state changed:", event, newSession ? "Session exists" : "No session");
       
-      // If we're in a password reset flow, don't update the auth state
-      // The reset password component will handle authentication temporarily
+      // If we're in a password reset flow, completely ignore all auth state changes
       if (isPasswordResetFlow()) {
-        console.log("In password reset flow, ignoring auth state change");
+        console.log("In password reset flow, ignoring ALL auth state changes");
+        setIsLoading(false);
         return;
       }
       

@@ -1,6 +1,5 @@
 
-import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -12,19 +11,7 @@ import CTASection from "@/components/home/CTASection";
 import TherapistCarouselSection from "@/components/home/TherapistCarouselSection";
 
 const Index = () => {
-  const { isAuthenticated, getDashboardRoute } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // If user is authenticated, redirect to their dashboard
-    if (isAuthenticated) {
-      const dashboardRoute = getDashboardRoute();
-      if (dashboardRoute) {
-        navigate(dashboardRoute);
-      }
-    }
-  }, [isAuthenticated, navigate, getDashboardRoute]);
-
+  // Remove the automatic redirect logic - let users view the home page regardless of auth status
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
