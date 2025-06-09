@@ -62,7 +62,7 @@ const ResetPassword = () => {
         return;
       }
 
-      // Validate the session but don't set it in the auth context yet
+      // Set the session to validate the tokens but keep it active for password reset
       try {
         const { data, error } = await supabase.auth.setSession({
           access_token: accessToken,
@@ -73,13 +73,7 @@ const ResetPassword = () => {
           throw error;
         }
 
-        // Immediately sign out to prevent auto-login but keep the tokens for password reset
-        await supabase.auth.signOut();
-        
-        // Store tokens temporarily for password reset
-        sessionStorage.setItem('reset_access_token', accessToken);
-        sessionStorage.setItem('reset_refresh_token', refreshToken);
-        
+        // Keep the session active - don't sign out yet
         setHasResetToken(true);
       } catch (error: any) {
         console.error("Token validation error:", error);
@@ -105,25 +99,7 @@ const ResetPassword = () => {
     try {
       setIsSubmitting(true);
       
-      // Get the stored tokens
-      const accessToken = sessionStorage.getItem('reset_access_token');
-      const refreshToken = sessionStorage.getItem('reset_refresh_token');
-      
-      if (!accessToken || !refreshToken) {
-        throw new Error("Reset session expired. Please request a new password reset link.");
-      }
-
-      // Temporarily set the session to update the password
-      const { error: sessionError } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken
-      });
-
-      if (sessionError) {
-        throw sessionError;
-      }
-
-      // Update the password
+      // Update the password using the active session
       const { error: updateError } = await supabase.auth.updateUser({
         password: values.password
       });
@@ -132,22 +108,14 @@ const ResetPassword = () => {
         throw updateError;
       }
 
-      // Sign out immediately after password update
+      // Only sign out after successful password update
       await supabase.auth.signOut();
-      
-      // Clean up stored tokens
-      sessionStorage.removeItem('reset_access_token');
-      sessionStorage.removeItem('reset_refresh_token');
       
       toast.success("Password has been reset successfully! Please log in with your new password.");
       navigate("/login");
     } catch (error: any) {
       console.error("Password reset error:", error);
       toast.error(error.message || "An error occurred. Please try again.");
-      
-      // Clean up on error
-      sessionStorage.removeItem('reset_access_token');
-      sessionStorage.removeItem('reset_refresh_token');
     } finally {
       setIsSubmitting(false);
     }
