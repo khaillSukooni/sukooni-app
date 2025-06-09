@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthUser, UserProfile } from "@/lib/types/auth";
@@ -16,8 +15,15 @@ export function useAuthState() {
 
   // Check if we're in a password reset flow
   const isPasswordResetFlow = () => {
-    return window.location.pathname === '/reset-password' && 
-           window.location.hash.includes('type=recovery');
+    if (window.location.pathname !== '/reset-password') return false;
+    
+    const hash = window.location.hash;
+    if (!hash) return false;
+    
+    const hashParams = new URLSearchParams(hash.substring(1));
+    const type = hashParams.get("type");
+    
+    return type === "recovery";
   };
 
   // Fetch user profile when we have a user ID
