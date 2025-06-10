@@ -57,8 +57,12 @@ export function Combobox({
         >
           {selectedOption ? (
             <span className="flex items-center gap-2">
-              {selectedOption.icon && <span>{selectedOption.icon}</span>}
-              {selectedOption.label}
+              {selectedOption.icon && (
+                <span className="text-base leading-none font-emoji select-none">
+                  {selectedOption.icon}
+                </span>
+              )}
+              <span className="truncate">{selectedOption.label}</span>
             </span>
           ) : (
             placeholder
@@ -71,7 +75,13 @@ export function Combobox({
           <CommandInput placeholder={searchPlaceholder} />
           <CommandList>
             <CommandEmpty>{emptyText}</CommandEmpty>
-            <CommandGroup className="max-h-64 overflow-auto">
+            <CommandGroup 
+              className="max-h-64 overflow-auto overscroll-contain"
+              style={{
+                scrollBehavior: 'smooth',
+                WebkitOverflowScrolling: 'touch'
+              }}
+            >
               {options.map((option) => (
                 <CommandItem
                   key={option.value}
@@ -80,16 +90,21 @@ export function Combobox({
                     onValueChange(option.value === value ? "" : option.value)
                     setOpen(false)
                   }}
+                  className="cursor-pointer"
                 >
                   <Check
                     className={cn(
-                      "mr-2 h-4 w-4",
+                      "mr-2 h-4 w-4 shrink-0",
                       value === option.value ? "opacity-100" : "opacity-0"
                     )}
                   />
-                  <span className="flex items-center gap-2">
-                    {option.icon && <span>{option.icon}</span>}
-                    {option.label}
+                  <span className="flex items-center gap-2 flex-1 min-w-0">
+                    {option.icon && (
+                      <span className="text-base leading-none font-emoji select-none shrink-0">
+                        {option.icon}
+                      </span>
+                    )}
+                    <span className="truncate">{option.label}</span>
                   </span>
                 </CommandItem>
               ))}
