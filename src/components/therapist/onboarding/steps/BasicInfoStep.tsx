@@ -38,12 +38,12 @@ const GENDER_OPTIONS = [
 
 // Transform the data arrays to match ComboboxOption format
 const countryOptions = countries.map(country => ({
-  value: country.code,
+  value: country.name,
   label: country.name
 }));
 
 const nationalityOptions = nationalities.map(nationality => ({
-  value: nationality.code,
+  value: nationality.name,
   label: nationality.name
 }));
 

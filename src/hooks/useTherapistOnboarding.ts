@@ -29,8 +29,9 @@ export function useTherapistOnboarding() {
       }
 
       if (therapistData) {
+        const draftData = therapistData.draft_data;
         const formattedData = {
-          ...(therapistData.draft_data || {}),
+          ...(draftData && typeof draftData === 'object' ? draftData : {}),
           onboarding_step: therapistData.onboarding_step,
           onboarding_completed: therapistData.onboarding_completed,
         };
