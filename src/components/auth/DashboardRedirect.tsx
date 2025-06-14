@@ -1,89 +1,60 @@
 
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import useNeedsPasswordSetup from '@/hooks/useNeedsPasswordSetup';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
-const DashboardRedirect = () => {
-  const { isAuthenticated, isLoading, getDashboardRoute } = useAuth();
+export default function DashboardRedirect() {
+  const { user, profile, isProfileLoading, getDashboardRoute } = useAuth();
   const navigate = useNavigate();
-  const { needsPasswordSetup, loading: checkingPasswordSetup } = useNeedsPasswordSetup();
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const redirectUser = async () => {
-      try {
-        // Wait until auth is loaded
-        if (isLoading || checkingPasswordSetup) {
-          return;
-        }
+    const checkTherapistOnboarding = async () => {
+      if (!user || !profile || isProfileLoading) return;
 
-        // If user is authenticated but needs to set password
-        if (isAuthenticated && needsPasswordSetup) {
-          navigate('/set-password');
-          return;
-        }
+      // Check if user is a therapist and needs to complete onboarding
+      if (profile.role === 'therapist') {
+        try {
+          const { data: therapistData, error } = await supabase
+            .from('therapists')
+            .select('onboarding_completed, onboarding_step')
+            .eq('id', user.id)
+            .single();
 
-        // If user is authenticated, redirect to their dashboard
-        if (isAuthenticated) {
-          const dashboardRoute = getDashboardRoute();
-          if (dashboardRoute) {
-            navigate(dashboardRoute);
-          } else {
-            setError("Could not determine your dashboard route.");
+          if (error && error.code !== 'PGRST116') {
+            console.error('Error checking therapist onboarding:', error);
+            return;
           }
-        } else {
-          // If not authenticated, redirect to login
-          navigate('/login');
+
+          // If therapist record doesn't exist or onboarding not completed, redirect to onboarding
+          if (!therapistData || !therapistData.onboarding_completed) {
+            navigate('/therapist-onboarding');
+            return;
+          }
+        } catch (error) {
+          console.error('Error checking therapist onboarding:', error);
         }
-      } catch (err) {
-        console.error('Error in dashboard redirect:', err);
-        setError('An error occurred. Please try again later.');
       }
+
+      // For completed profiles or other roles, redirect to their dashboard
+      const dashboardRoute = getDashboardRoute();
+      navigate(dashboardRoute);
     };
 
-    redirectUser();
-  }, [isAuthenticated, isLoading, navigate, getDashboardRoute, needsPasswordSetup, checkingPasswordSetup]);
+    checkTherapistOnboarding();
+  }, [user, profile, isProfileLoading, navigate, getDashboardRoute]);
 
-  // Show loading state
-  if (isLoading || checkingPasswordSetup) {
+  if (isProfileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-blue mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your dashboard...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
 
-  // Show error state if there is an error
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 text-xl">Error</div>
-          <p className="mt-2 text-gray-600">{error}</p>
-          <button 
-            onClick={() => navigate('/login')}
-            className="mt-4 px-4 py-2 bg-brand-blue text-white rounded hover:bg-brand-blue/90"
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // Default loading state
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand-blue mx-auto"></div>
-        <p className="mt-4 text-gray-600">Redirecting...</p>
-      </div>
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
     </div>
   );
-};
-
-export default DashboardRedirect;
+}

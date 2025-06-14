@@ -16,6 +16,8 @@ import ResetPassword from "./pages/ResetPassword";
 import SetPassword from "./pages/SetPassword";
 import Therapists from "./pages/Therapists";
 import ClientMessages from "./pages/client/ClientMessages";
+import TherapistSignup from "./pages/TherapistSignup";
+import TherapistOnboarding from "./pages/TherapistOnboarding";
 
 import ClientDashboardLayout from "./components/layout/ClientDashboardLayout";
 import ClientDashboard from "./pages/client/ClientDashboard";
@@ -59,6 +61,10 @@ const App = () => (
             <Route path="/organizations" element={<NotFound />} />
             <Route path="/terms" element={<NotFound />} />
             <Route path="/privacy" element={<NotFound />} />
+            
+            {/* Therapist signup and onboarding routes */}
+            <Route path="/therapist-signup/:token" element={<TherapistSignup />} />
+            <Route path="/therapist-onboarding" element={<AuthGuard><TherapistOnboarding /></AuthGuard>} />
             
             {/* Dashboard redirect route with auth guard - this is a special component that handles profile loading */}
             <Route path="/dashboard" element={<AuthGuard><DashboardRedirect /></AuthGuard>} />
