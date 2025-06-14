@@ -1,12 +1,12 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { TherapistOnboardingData, ONBOARDING_STEPS } from '@/lib/types/therapist-onboarding';
+import { TherapistOnboardingData, ONBOARDING_STEPS, OnboardingStep } from '@/lib/types/therapist-onboarding';
 import { toast } from '@/components/ui/sonner';
 
 export function useTherapistOnboarding() {
   const [data, setData] = useState<TherapistOnboardingData>({});
-  const [currentStep, setCurrentStep] = useState(ONBOARDING_STEPS.BASIC_INFO);
+  const [currentStep, setCurrentStep] = useState<number>(ONBOARDING_STEPS.BASIC_INFO);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -30,7 +30,7 @@ export function useTherapistOnboarding() {
 
       if (therapistData) {
         const formattedData = {
-          ...therapistData.draft_data,
+          ...(therapistData.draft_data || {}),
           onboarding_step: therapistData.onboarding_step,
           onboarding_completed: therapistData.onboarding_completed,
         };
@@ -55,7 +55,7 @@ export function useTherapistOnboarding() {
       
       const { error } = await supabase.rpc('save_therapist_draft', {
         step_number: currentStep,
-        step_data: dataToSave
+        step_data: dataToSave as any
       });
 
       if (error) throw error;
@@ -93,7 +93,7 @@ export function useTherapistOnboarding() {
     try {
       setIsSaving(true);
       const { error } = await supabase.rpc('complete_therapist_onboarding', {
-        final_data: data
+        final_data: data as any
       });
 
       if (error) throw error;

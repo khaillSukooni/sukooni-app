@@ -36,6 +36,17 @@ const GENDER_OPTIONS = [
   { value: 'prefer_not_to_say', label: 'Prefer not to say' }
 ];
 
+// Transform the data arrays to match ComboboxOption format
+const countryOptions = countries.map(country => ({
+  value: country.code,
+  label: country.name
+}));
+
+const nationalityOptions = nationalities.map(nationality => ({
+  value: nationality.code,
+  label: nationality.name
+}));
+
 export function BasicInfoStep({ data, onNext, onSaveDraft, isSaving }: BasicInfoStepProps) {
   const form = useForm<BasicInfoFormData>({
     resolver: zodResolver(basicInfoSchema),
@@ -139,7 +150,7 @@ export function BasicInfoStep({ data, onNext, onSaveDraft, isSaving }: BasicInfo
                 <FormLabel>Nationality</FormLabel>
                 <FormControl>
                   <Combobox
-                    options={nationalities}
+                    options={nationalityOptions}
                     value={field.value}
                     onValueChange={field.onChange}
                     placeholder="Select nationality..."
@@ -159,7 +170,7 @@ export function BasicInfoStep({ data, onNext, onSaveDraft, isSaving }: BasicInfo
                 <FormLabel>Country of Residence</FormLabel>
                 <FormControl>
                   <Combobox
-                    options={countries}
+                    options={countryOptions}
                     value={field.value}
                     onValueChange={field.onChange}
                     placeholder="Select country..."

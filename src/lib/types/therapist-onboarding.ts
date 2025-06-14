@@ -50,6 +50,9 @@ export interface TherapistOnboardingData {
   // Meta
   onboarding_step?: number;
   onboarding_completed?: boolean;
+  
+  // Index signature for Supabase compatibility
+  [key: string]: any;
 }
 
 export interface PracticeHistoryEntry {
@@ -83,6 +86,8 @@ export const ONBOARDING_STEPS = {
   PROFILE_BIO: 9,
   REVIEW: 10
 } as const;
+
+export type OnboardingStep = typeof ONBOARDING_STEPS[keyof typeof ONBOARDING_STEPS];
 
 export const EDUCATION_LEVELS = [
   { value: 'bachelor', label: 'Bachelor\'s Degree' },
