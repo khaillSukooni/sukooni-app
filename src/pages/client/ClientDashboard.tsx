@@ -112,23 +112,23 @@ const ClientDashboard = () => {
             {/* Left Column - Daily Check-in and Progress */}
             <div className="lg:col-span-2 space-y-6">
               {/* Daily Check-in Card */}
-              <Card className="shadow-lg border-0">
+              <Card className="shadow-lg border-0 bg-white">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <div className="text-teal-500 text-sm font-medium">✨ Daily Check-in</div>
+                        <div className="text-primary text-sm font-medium">✨ Daily Check-in</div>
                       </div>
                       <h3 className="text-xl font-semibold text-gray-900">Ready to continue your journey?</h3>
                       <p className="text-gray-600 text-sm leading-relaxed max-w-md">
                         Take a moment to reflect on your feelings and connect with your therapist. Your mental health matters, and every step counts.
                       </p>
-                      <Button className="bg-teal-500 hover:bg-teal-600 text-white rounded-lg px-6">
+                      <Button className="bg-primary hover:bg-primary/90 text-white rounded-lg px-6">
                         <Heart className="h-4 w-4 mr-2" />
                         Start Check-in
                       </Button>
                     </div>
-                    <div className="bg-teal-500 p-4 rounded-xl">
+                    <div className="bg-primary p-4 rounded-xl">
                       <Heart className="h-8 w-8 text-white" />
                     </div>
                   </div>
@@ -137,7 +137,7 @@ const ClientDashboard = () => {
 
               {/* Progress Metrics */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="shadow-md border-0">
+                <Card className="shadow-md border-0 bg-white">
                   <CardContent className="p-4">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -149,7 +149,7 @@ const ClientDashboard = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-md border-0">
+                <Card className="shadow-md border-0 bg-white">
                   <CardContent className="p-4">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -161,19 +161,19 @@ const ClientDashboard = () => {
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-md border-0">
+                <Card className="shadow-md border-0 bg-white">
                   <CardContent className="p-4">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <p className="text-sm text-gray-600">Mood Improvement</p>
-                        <TrendingUp className="h-4 w-4 text-blue-500" />
+                        <TrendingUp className="h-4 w-4 text-primary" />
                       </div>
                       <div className="text-2xl font-bold text-gray-900">+{mockStats.moodImprovement}%</div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="shadow-md border-0">
+                <Card className="shadow-md border-0 bg-white">
                   <CardContent className="p-4">
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -187,7 +187,7 @@ const ClientDashboard = () => {
               </div>
 
               {/* Upcoming Sessions */}
-              <Card className="shadow-lg border-0">
+              <Card className="shadow-lg border-0 bg-white">
                 <CardHeader className="pb-4">
                   <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
                     <Calendar className="h-5 w-5" />
@@ -196,10 +196,10 @@ const ClientDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="bg-teal-50 rounded-lg p-4">
+                    <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
                       <div className="flex items-center justify-between">
                         <div className="space-y-2">
-                          <div className="bg-teal-100 text-teal-700 text-xs font-medium px-2 py-1 rounded-md inline-block">
+                          <div className="bg-blue-100 text-blue-700 text-xs font-medium px-2 py-1 rounded-md inline-block">
                             Tomorrow
                           </div>
                           <div className="flex items-center gap-2">
@@ -216,7 +216,7 @@ const ClientDashboard = () => {
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-4">
-                        <Button className="bg-teal-500 hover:bg-teal-600 text-white flex-1 mr-2">
+                        <Button className="bg-primary hover:bg-primary/90 text-white flex-1 mr-2">
                           <Video className="h-4 w-4 mr-2" />
                           Join Session
                         </Button>
@@ -233,7 +233,7 @@ const ClientDashboard = () => {
             {/* Right Column - Therapist and Quick Actions */}
             <div className="space-y-6">
               {/* Your Therapist Card */}
-              <Card className="shadow-lg border-0">
+              <Card className="shadow-lg border-0 bg-white">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-semibold text-gray-900">Your Therapist</CardTitle>
                 </CardHeader>
@@ -242,11 +242,11 @@ const ClientDashboard = () => {
                     <div className="relative">
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={mockTherapist.avatar} alt={mockTherapist.name} />
-                        <AvatarFallback className="bg-teal-500 text-white">
+                        <AvatarFallback className="bg-primary text-white">
                           {mockTherapist.name.split(' ').map(n => n[0]).join('')}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="absolute -bottom-1 -right-1 bg-teal-500 rounded-full p-1">
+                      <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1">
                         <Heart className="h-3 w-3 text-white" />
                       </div>
                     </div>
@@ -267,7 +267,7 @@ const ClientDashboard = () => {
                       <MessageCircle className="h-4 w-4 mr-1" />
                       Message
                     </Button>
-                    <Button className="bg-teal-500 hover:bg-teal-600 text-white flex-1">
+                    <Button className="bg-primary hover:bg-primary/90 text-white flex-1">
                       <Phone className="h-4 w-4 mr-1" />
                       Call
                     </Button>
@@ -276,7 +276,7 @@ const ClientDashboard = () => {
               </Card>
 
               {/* Quick Actions */}
-              <Card className="shadow-lg border-0">
+              <Card className="shadow-lg border-0 bg-white">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-semibold text-gray-900">Quick Actions</CardTitle>
                 </CardHeader>
