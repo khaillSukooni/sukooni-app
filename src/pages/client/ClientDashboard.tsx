@@ -17,7 +17,8 @@ import {
   Video,
   BookOpen,
   Award,
-  Phone
+  Phone,
+  Flame
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -37,28 +38,19 @@ const ClientDashboard = () => {
   const [nextAppointment, setNextAppointment] = useState<Appointment | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Mock data for dashboard
+  // Mock data matching the screenshot
   const mockStats = {
-    streak: 12,
-    totalSessions: 8,
-    moodImprovement: 75,
-    goalsCompleted: 3
+    streak: 7,
+    totalSessions: 12,
+    moodImprovement: 8,
+    goalsThisWeek: 5
   };
 
   const mockTherapist = {
-    name: "Dr. Sarah Johnson",
-    title: "Licensed Clinical Psychologist",
-    specialization: "Anxiety & Depression",
+    name: "Dr. Sarah Johnson", 
+    title: "Licensed Therapist",
     rating: 4.9,
-    avatar: "/placeholder.svg",
-    yearsExperience: 8
-  };
-
-  const mockUpcomingSession = {
-    date: "2024-01-15",
-    time: "2:00 PM - 3:00 PM",
-    type: "Video Session",
-    therapist: mockTherapist
+    avatar: "/placeholder.svg"
   };
 
   useEffect(() => {
@@ -107,11 +99,11 @@ const ClientDashboard = () => {
         <div className="space-y-8">
           {/* Header Section */}
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight">
-              Good morning, {profile?.first_name || "Client"}! 👋
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+              Welcome back, {profile?.first_name || "John"}
             </h1>
-            <p className="text-muted-foreground text-lg">
-              Ready to continue your wellness journey today?
+            <p className="text-gray-600">
+              Here's a look at your journey so far. Keep up the great work!
             </p>
           </div>
 
@@ -120,100 +112,119 @@ const ClientDashboard = () => {
             {/* Left Column - Daily Check-in and Progress */}
             <div className="lg:col-span-2 space-y-6">
               {/* Daily Check-in Card */}
-              <Card className="bg-gradient-to-br from-brand-blue to-brand-dark-blue text-white border-0">
+              <Card className="shadow-lg border-0">
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-semibold">Daily Check-in</h3>
-                      <p className="text-blue-100">How are you feeling today?</p>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <div className="text-teal-500 text-sm font-medium">✨ Daily Check-in</div>
+                      </div>
+                      <h3 className="text-xl font-semibold text-gray-900">Ready to continue your journey?</h3>
+                      <p className="text-gray-600 text-sm leading-relaxed max-w-md">
+                        Take a moment to reflect on your feelings and connect with your therapist. Your mental health matters, and every step counts.
+                      </p>
+                      <Button className="bg-teal-500 hover:bg-teal-600 text-white rounded-lg px-6">
+                        <Heart className="h-4 w-4 mr-2" />
+                        Start Check-in
+                      </Button>
                     </div>
-                    <div className="bg-white/20 p-3 rounded-full">
-                      <Heart className="h-8 w-8" />
+                    <div className="bg-teal-500 p-4 rounded-xl">
+                      <Heart className="h-8 w-8 text-white" />
                     </div>
                   </div>
-                  <Button className="mt-4 bg-white text-brand-blue hover:bg-gray-100">
-                    Start Check-in
-                  </Button>
                 </CardContent>
               </Card>
 
               {/* Progress Metrics */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <div className="flex items-center justify-center mb-2">
-                      <div className="bg-orange-100 p-2 rounded-full">
-                        <TrendingUp className="h-5 w-5 text-orange-600" />
+                <Card className="shadow-md border-0">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-gray-600">Current Streak</p>
+                        <Flame className="h-4 w-4 text-orange-500" />
                       </div>
+                      <div className="text-2xl font-bold text-gray-900">{mockStats.streak} days</div>
                     </div>
-                    <div className="text-2xl font-bold text-orange-600">{mockStats.streak}</div>
-                    <p className="text-sm text-muted-foreground">Day Streak</p>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <div className="flex items-center justify-center mb-2">
-                      <div className="bg-blue-100 p-2 rounded-full">
-                        <Calendar className="h-5 w-5 text-blue-600" />
+                <Card className="shadow-md border-0">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-gray-600">Sessions Completed</p>
+                        <Calendar className="h-4 w-4 text-green-500" />
                       </div>
+                      <div className="text-2xl font-bold text-gray-900">{mockStats.totalSessions}</div>
                     </div>
-                    <div className="text-2xl font-bold text-blue-600">{mockStats.totalSessions}</div>
-                    <p className="text-sm text-muted-foreground">Sessions</p>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <div className="flex items-center justify-center mb-2">
-                      <div className="bg-green-100 p-2 rounded-full">
-                        <Heart className="h-5 w-5 text-green-600" />
+                <Card className="shadow-md border-0">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-gray-600">Mood Improvement</p>
+                        <TrendingUp className="h-4 w-4 text-blue-500" />
                       </div>
+                      <div className="text-2xl font-bold text-gray-900">+{mockStats.moodImprovement}%</div>
                     </div>
-                    <div className="text-2xl font-bold text-green-600">{mockStats.moodImprovement}%</div>
-                    <p className="text-sm text-muted-foreground">Mood ↑</p>
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <div className="flex items-center justify-center mb-2">
-                      <div className="bg-purple-100 p-2 rounded-full">
-                        <Target className="h-5 w-5 text-purple-600" />
+                <Card className="shadow-md border-0">
+                  <CardContent className="p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm text-gray-600">Goals This Week</p>
+                        <Target className="h-4 w-4 text-purple-500" />
                       </div>
+                      <div className="text-2xl font-bold text-gray-900">{mockStats.goalsThisWeek}</div>
                     </div>
-                    <div className="text-2xl font-bold text-purple-600">{mockStats.goalsCompleted}</div>
-                    <p className="text-sm text-muted-foreground">Goals</p>
                   </CardContent>
                 </Card>
               </div>
 
-              {/* Upcoming Session */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+              {/* Upcoming Sessions */}
+              <Card className="shadow-lg border-0">
+                <CardHeader className="pb-4">
+                  <CardTitle className="flex items-center gap-2 text-lg font-semibold text-gray-900">
                     <Calendar className="h-5 w-5" />
-                    Upcoming Session
+                    Upcoming Sessions
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        <span>Tomorrow, {mockUpcomingSession.time}</span>
+                  <div className="space-y-4">
+                    <div className="bg-teal-50 rounded-lg p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-2">
+                          <div className="bg-teal-100 text-teal-700 text-xs font-medium px-2 py-1 rounded-md inline-block">
+                            Tomorrow
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Video className="h-4 w-4 text-gray-500" />
+                            <span className="font-medium text-gray-900">Dr. Sarah Johnson</span>
+                          </div>
+                          <div className="text-sm text-gray-600">9:00 AM • video</div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1 text-sm text-gray-500">
+                            <Clock className="h-4 w-4" />
+                            60min
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Video className="h-4 w-4 text-brand-blue" />
-                        <span className="font-medium">{mockUpcomingSession.type}</span>
+                      <div className="flex items-center justify-between mt-4">
+                        <Button className="bg-teal-500 hover:bg-teal-600 text-white flex-1 mr-2">
+                          <Video className="h-4 w-4 mr-2" />
+                          Join Session
+                        </Button>
+                        <Button variant="ghost" size="sm">
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        with {mockUpcomingSession.therapist.name}
-                      </p>
                     </div>
-                    <Button className="bg-brand-blue hover:bg-brand-dark-blue">
-                      Join Session
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -222,43 +233,41 @@ const ClientDashboard = () => {
             {/* Right Column - Therapist and Quick Actions */}
             <div className="space-y-6">
               {/* Your Therapist Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Your Therapist</CardTitle>
+              <Card className="shadow-lg border-0">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900">Your Therapist</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-12 w-12">
-                      <AvatarImage src={mockTherapist.avatar} alt={mockTherapist.name} />
-                      <AvatarFallback className="bg-brand-blue text-white">
-                        {mockTherapist.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h4 className="font-semibold">{mockTherapist.name}</h4>
-                      <p className="text-sm text-muted-foreground">{mockTherapist.title}</p>
+                    <div className="relative">
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={mockTherapist.avatar} alt={mockTherapist.name} />
+                        <AvatarFallback className="bg-teal-500 text-white">
+                          {mockTherapist.name.split(' ').map(n => n[0]).join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="absolute -bottom-1 -right-1 bg-teal-500 rounded-full p-1">
+                        <Heart className="h-3 w-3 text-white" />
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Badge variant="secondary" className="text-xs">
-                      {mockTherapist.specialization}
-                    </Badge>
-                    <div className="flex items-center gap-1">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">{mockTherapist.rating}</span>
-                      <span className="text-sm text-muted-foreground">
-                        • {mockTherapist.yearsExperience} years exp.
-                      </span>
+                    <div>
+                      <h4 className="font-semibold text-gray-900">{mockTherapist.name}</h4>
+                      <p className="text-sm text-gray-600">{mockTherapist.title}</p>
+                      <div className="flex items-center gap-1 mt-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        ))}
+                        <span className="text-xs text-gray-500 ml-1">(4.9)</span>
+                      </div>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button variant="outline" size="sm" className="flex-1">
                       <MessageCircle className="h-4 w-4 mr-1" />
                       Message
                     </Button>
-                    <Button size="sm" variant="outline" className="flex-1">
+                    <Button className="bg-teal-500 hover:bg-teal-600 text-white flex-1">
                       <Phone className="h-4 w-4 mr-1" />
                       Call
                     </Button>
@@ -267,22 +276,22 @@ const ClientDashboard = () => {
               </Card>
 
               {/* Quick Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
+              <Card className="shadow-lg border-0">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-gray-900">Quick Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline">
-                    <Calendar className="h-4 w-4 mr-2" />
+                  <Button className="w-full justify-start text-left" variant="ghost">
+                    <Calendar className="h-4 w-4 mr-3" />
                     Book New Session
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <BookOpen className="h-4 w-4 mr-2" />
-                    View Resources
+                  <Button className="w-full justify-start text-left" variant="ghost">
+                    <MessageCircle className="h-4 w-4 mr-3" />
+                    Send Message
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Award className="h-4 w-4 mr-2" />
-                    Track Progress
+                  <Button className="w-full justify-start text-left" variant="ghost">
+                    <Heart className="h-4 w-4 mr-3" />
+                    Update Goals
                   </Button>
                 </CardContent>
               </Card>
