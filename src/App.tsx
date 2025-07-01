@@ -24,6 +24,7 @@ import ClientDashboard from "./pages/client/ClientDashboard";
 import ClientAppointments from "./pages/client/ClientAppointments";
 import ClientProfile from "./pages/client/ClientProfile";
 import ClientSettings from "./pages/client/ClientSettings";
+import ClientCheckIns from "./pages/client/ClientCheckIns";
 import AuthGuard from "./components/auth/AuthGuard";
 import DashboardRedirect from "./components/auth/DashboardRedirect";
 
@@ -78,6 +79,7 @@ const App = () => (
             }>
               <Route index element={<ClientDashboard />} />
               <Route path="appointments" element={<ClientAppointments />} />
+              <Route path="check-ins" element={<ClientCheckIns />} />
               <Route path="profile" element={<ClientProfile />} />
               <Route path="settings" element={<ClientSettings />} />
               <Route path="messages" element={<ClientMessages />} />
