@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { DemoProvider } from "@/contexts/DemoContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 import Index from "./pages/Index";
@@ -18,7 +19,6 @@ import Therapists from "./pages/Therapists";
 import ClientMessages from "./pages/client/ClientMessages";
 import TherapistSignup from "./pages/TherapistSignup";
 import TherapistOnboarding from "./pages/TherapistOnboarding";
-import DemoSwitcher from "./pages/DemoSwitcher";
 
 import ClientDashboardLayout from "./components/layout/ClientDashboardLayout";
 import ClientDashboard from "./pages/client/ClientDashboard";
@@ -36,6 +36,11 @@ import AdminAppointments from "./pages/admin/AdminAppointments";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminTherapists from "./pages/admin/AdminTherapists";
 
+// Demo imports
+import DemoClientLayout from "./components/demo/DemoClientLayout";
+import DemoAdminLayout from "./components/demo/DemoAdminLayout";
+import DemoTherapistLayout from "./components/demo/DemoTherapistLayout";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -43,12 +48,12 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
+          <DemoProvider>
           <Toaster />
           <Sonner />
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
-            <Route path="/demo" element={<DemoSwitcher />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -105,10 +110,29 @@ const App = () => (
               <Route path="clients" element={<AdminClients />} />
               <Route path="therapists" element={<AdminTherapists />} />
             </Route>
+
+            {/* Demo routes - no authentication required */}
+            <Route path="/demo/client" element={<DemoClientLayout />}>
+              <Route index element={<ClientDashboard />} />
+              <Route path="appointments" element={<ClientAppointments />} />
+              <Route path="check-ins" element={<ClientCheckIns />} />
+              <Route path="profile" element={<ClientProfile />} />
+              <Route path="messages" element={<ClientMessages />} />
+            </Route>
+
+            <Route path="/demo/therapist" element={<DemoTherapistLayout />} />
+
+            <Route path="/demo/admin" element={<DemoAdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="appointments" element={<AdminAppointments />} />
+              <Route path="clients" element={<AdminClients />} />
+              <Route path="therapists" element={<AdminTherapists />} />
+            </Route>
             
             {/* Catch-all route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </DemoProvider>
         </AuthProvider>
       </TooltipProvider>
     </QueryClientProvider>

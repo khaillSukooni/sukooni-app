@@ -9,9 +9,11 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { LogOut, LayoutDashboard, FileText, Shield, Loader2 } from "lucide-react";
+import { LogOut, LayoutDashboard, FileText, Shield, Loader2, Users, User } from "lucide-react";
 import { UserProfile } from "@/lib/types/auth";
 import UserAvatar from "./UserAvatar";
+import { useDemo } from "@/contexts/DemoContext";
+import { useNavigate } from "react-router-dom";
 
 interface UserMenuDesktopProps {
   profile: UserProfile | null;
@@ -34,6 +36,14 @@ const UserMenuDesktop = ({
   getDashboardRoute, 
   handleSignOut 
 }: UserMenuDesktopProps) => {
+  const { enterDemoMode } = useDemo();
+  const navigate = useNavigate();
+
+  const handleDemoMode = (role: "client" | "therapist" | "admin") => {
+    enterDemoMode(role);
+    navigate(`/demo/${role}`);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="focus:outline-none" asChild>
@@ -78,6 +88,23 @@ const UserMenuDesktop = ({
             My Dashboard
           </Link>
         </DropdownMenuItem>
+        {profile?.role === "admin" && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleDemoMode("client")} className="cursor-pointer">
+              <User className="mr-2 h-4 w-4" />
+              Demo Client
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDemoMode("therapist")} className="cursor-pointer">
+              <Users className="mr-2 h-4 w-4" />
+              Demo Therapist
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleDemoMode("admin")} className="cursor-pointer">
+              <Shield className="mr-2 h-4 w-4" />
+              Demo Admin
+            </DropdownMenuItem>
+          </>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="text-red-600 cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
