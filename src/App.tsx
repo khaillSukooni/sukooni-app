@@ -18,6 +18,7 @@ import Therapists from "./pages/Therapists";
 import ClientMessages from "./pages/client/ClientMessages";
 import TherapistSignup from "./pages/TherapistSignup";
 import TherapistOnboarding from "./pages/TherapistOnboarding";
+import DemoSwitcher from "./pages/DemoSwitcher";
 
 import ClientDashboardLayout from "./components/layout/ClientDashboardLayout";
 import ClientDashboard from "./pages/client/ClientDashboard";
@@ -47,6 +48,7 @@ const App = () => (
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
+            <Route path="/demo" element={<DemoSwitcher />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

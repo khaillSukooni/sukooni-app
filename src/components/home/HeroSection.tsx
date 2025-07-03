@@ -32,6 +32,9 @@ const HeroSection = () => {
               <Button variant="outline" size="lg" className="rounded-full px-6" asChild>
                 <Link to="/therapists">Browse Therapists</Link>
               </Button>
+              <Button variant="secondary" size="lg" className="rounded-full px-6" asChild>
+                <Link to="/demo">View Demo</Link>
+              </Button>
             </div>
             
             <div className="flex items-center space-x-4 justify-center md:justify-start">
